@@ -1,8 +1,8 @@
 :root {
-  --gs-dark: #0e0f0c;
-  --gs-dark-2: #141612;
-  --gs-dark-3: #1c1e19;
-  --gs-dark-4: #232620;
+  --gs-dark: #000000;
+  --gs-dark-2: #000000;
+  --gs-dark-3: #000000;
+  --gs-dark-4: #0c0e0a;
   --gs-green: #73a36d;
   --gs-lime: #c8d832;
   --gs-cream: #e2d8c3;
@@ -276,7 +276,7 @@ body::after {
 .step-nav {
   display: flex;
   gap: 4px;
-  background: rgba(20, 22, 18, 0.8);
+  background: rgb(9 10 8 / 42%);
   border: 1px solid rgba(115, 163, 109, 0.1);
   border-radius: 16px;
   padding: 6px;
@@ -341,7 +341,7 @@ body::after {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(20, 22, 18, 0.6);
+  background: rgb(9 10 8 / 42%);
   border: 1px solid rgba(115, 163, 109, 0.1);
   border-radius: 12px;
   padding: 12px 18px;
@@ -405,7 +405,7 @@ body::after {
 
 /* ── CARD ── */
 .card {
-  background: rgba(20, 22, 18, 0.9);
+  background: rgb(9 10 8 / 42%);
   border: 1px solid rgba(115, 163, 109, 0.12);
   border-radius: 20px;
   padding: 40px;
@@ -544,10 +544,10 @@ body::after {
   padding: 8px 16px;
   border-radius: 100px;
   border: 1px solid rgba(115, 163, 109, 0.15);
-  background: rgba(115, 163, 109, 0.03);
-  font-size: 12px;
+  background: rgb(0 0 0 / 46%);
+  font-size: 14px;
   font-weight: 400;
-  color: rgba(184, 173, 151, 0.55);
+  color: rgb(223 220 214 / 55%);
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
@@ -582,10 +582,10 @@ body::after {
 /* ── INPUTS ── */
 .gs-input {
   width: 100%;
-  background: rgba(14, 15, 12, 0.8);
+  background: rgb(8 8 7 / 80%);
   border: 1px solid rgba(115, 163, 109, 0.15);
   border-radius: 10px;
-  color: var(--gs-cream);
+  color: #dbd5d5;
   font-family: "DM Sans", sans-serif;
   font-size: 14px;
   font-weight: 300;
@@ -963,7 +963,7 @@ body::after {
 .score-hero {
   text-align: center;
   padding: 60px 40px;
-  background: rgba(20, 22, 18, 0.95);
+  background: rgb(5 6 4 / 95%);
   border: 1px solid rgba(115, 163, 109, 0.12);
   border-radius: 20px;
   margin-bottom: 16px;
@@ -1015,7 +1015,7 @@ body::after {
 }
 
 .brief-card {
-  background: rgba(20, 22, 18, 0.95);
+  background: rgb(5 6 4 / 95%);
   border: 1px solid rgba(115, 163, 109, 0.12);
   border-radius: 20px;
   overflow: hidden;
@@ -1093,7 +1093,7 @@ body::after {
 }
 
 .cta-card {
-  background: rgba(20, 22, 18, 0.95);
+  background: rgb(5 6 4 / 95%);
   border: 1px solid rgba(115, 163, 109, 0.12);
   border-radius: 20px;
   padding: 48px 40px;
