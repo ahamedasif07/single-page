@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RISE Video Brief Builder – GotSafe Media</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --off-black: #111214;
+    --panel: #161819;
+    --border: #252729;
+    --orange: #FF5C1A;
+    --orange-glow: rgba(255,92,26,0.15);
+    --orange-light: #FF7A3D;
+    --white: #F5F3EE;
+    --muted: #6b6e73;
+    --step-r: #FF5C1A;
+    --step-i: #E8A020;
+    --step-s: #3BB8A0;
+    --step-e: #5B8BF5;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events:none;
+    z-index:0;
+    opacity:0.4;
+  }
+  .container { max-width:880px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+  header {
+    padding:36px 0 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:15px; letter-spacing:0.08em; color:var(--white); text-transform:uppercase; }
+  .logo span { color:var(--orange); }
+  .badge { background:var(--orange-glow); border:1px solid var(--orange); color:var(--orange); font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; padding:5px 12px; border-radius:100px; }
+
+  .hero { padding:72px 0 20px; text-align:center; }
+  .hero-eyebrow { font-size:12px; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--orange); margin-bottom:20px; }
+  .hero h1 { font-family:'Syne',sans-serif; font-size:clamp(34px,6vw,60px); font-weight:800; line-height:1.05; letter-spacing:-0.02em; margin-bottom:20px; }
+  .hero h1 em { font-style:italic; color:var(--orange); font-family:'DM Sans',sans-serif; font-weight:300; }
+  .hero p { font-size:17px; color:#9a9da3; line-height:1.7; max-width:560px; margin:0 auto 40px; }
+
+  .steps-nav { display:flex; gap:4px; margin-bottom:28px; background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:6px; }
+  .step-pill { flex:1; padding:12px 8px; border-radius:10px; text-align:center; cursor:pointer; transition:all 0.25s ease; }
+  .step-pill.active-R { background:rgba(255,92,26,0.12); }
+  .step-pill.active-I { background:rgba(232,160,32,0.12); }
+  .step-pill.active-S { background:rgba(59,184,160,0.12); }
+  .step-pill.active-E { background:rgba(91,139,245,0.12); }
+  .step-letter { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; display:block; margin-bottom:2px; }
+  .step-pill[data-step="R"] .step-letter { color:var(--step-r); }
+  .step-pill[data-step="I"] .step-letter { color:var(--step-i); }
+  .step-pill[data-step="S"] .step-letter { color:var(--step-s); }
+  .step-pill[data-step="E"] .step-letter { color:var(--step-e); }
+  .step-word { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:block; }
+  .step-pill.active-R .step-word, .step-pill.active-I .step-word,
+  .step-pill.active-S .step-word, .step-pill.active-E .step-word { color:var(--white); }
+
+  .progress-line { display:flex; gap:4px; margin-bottom:28px; }
+  .progress-seg { flex:1; height:3px; border-radius:100px; background:var(--border); transition:background 0.4s ease; }
+  .progress-seg.done-R { background:var(--step-r); }
+  .progress-seg.done-I { background:var(--step-i); }
+  .progress-seg.done-S { background:var(--step-s); }
+  .progress-seg.done-E { background:var(--step-e); }
+
+  .sticky-meter { background:var(--off-black); border:1px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; gap:16px; }
+  .sticky-label { font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+  .sticky-bar-outer { flex:1; height:6px; background:var(--border); border-radius:100px; overflow:hidden; }
+  .sticky-bar-inner { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--orange),var(--step-i)); transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1); width:0%; }
+  .sticky-pct { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; color:var(--white); min-width:40px; text-align:right; }
+
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:40px 44px; margin-bottom:16px; animation:fadeUp 0.4s ease; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .card-header { display:flex; align-items:flex-start; gap:20px; margin-bottom:28px; }
+  .step-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:24px; flex-shrink:0; }
+  .step-R .step-icon { background:rgba(255,92,26,0.15); color:var(--step-r); }
+  .step-I .step-icon { background:rgba(232,160,32,0.15); color:var(--step-i); }
+  .step-S .step-icon { background:rgba(59,184,160,0.15); color:var(--step-s); }
+  .step-E .step-icon { background:rgba(91,139,245,0.15); color:var(--step-e); }
+  .card-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:700; margin-bottom:6px; }
+  .card-subtitle { font-size:14px; color:var(--muted); line-height:1.5; }
+
+  .field-group { margin-bottom:26px; }
+  label { display:block; font-size:12px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  input[type="text"], textarea, select { width:100%; background:var(--off-black); border:1px solid var(--border); border-radius:10px; color:var(--white); font-family:'DM Sans',sans-serif; font-size:15px; font-weight:300; padding:14px 16px; outline:none; transition:border-color 0.2s; resize:vertical; }
+  input[type="text"]:focus, textarea:focus, select:focus { border-color:var(--orange); }
+  select option { background:var(--panel); }
+  textarea { min-height:80px; }
+
+  .chip-group { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { padding:8px 16px; border-radius:100px; border:1px solid var(--border); background:var(--off-black); font-size:13px; cursor:pointer; transition:all 0.2s; user-select:none; color:#9a9da3; }
+  .chip:hover { border-color:var(--muted); color:var(--white); }
+  .chip.selected-R { border-color:var(--step-r); background:rgba(255,92,26,0.1); color:var(--step-r); }
+  .chip.selected-I { border-color:var(--step-i); background:rgba(232,160,32,0.1); color:var(--step-i); }
+  .chip.selected-S { border-color:var(--step-s); background:rgba(59,184,160,0.1); color:var(--step-s); }
+  .chip.selected-E { border-color:var(--step-e); background:rgba(91,139,245,0.1); color:var(--step-e); }
+
+  /* INSIGHT BOX */
+  .insight-box { background:rgba(255,92,26,0.06); border-left:3px solid var(--orange); border-radius:0 8px 8px 0; padding:14px 18px; margin-bottom:22px; font-size:13px; color:#c0c3c8; line-height:1.6; }
+  .insight-box strong { color:var(--orange); }
+
+  /* EXAMPLE CARDS */
+  .examples-label { font-size:12px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; margin-top:26px; }
+  .examples-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:22px; }
+  .example-card { background:var(--off-black); border:1px solid var(--border); border-radius:12px; padding:16px 18px; cursor:pointer; transition:all 0.2s; }
+  .example-card:hover { border-color:var(--orange); }
+  .example-card.used { border-color:var(--orange); background:rgba(255,92,26,0.06); }
+  .example-emoji { font-size:22px; margin-bottom:8px; }
+  .example-title { font-size:13px; font-weight:500; color:var(--white); margin-bottom:4px; }
+  .example-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+  .example-card.used .example-title { color:var(--orange); }
+
+  /* BEFORE/AFTER BOXES */
+  .before-after { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:22px; }
+  .ba-box { border-radius:10px; padding:16px; }
+  .ba-before { background:rgba(255,60,60,0.06); border:1px solid rgba(255,60,60,0.2); }
+  .ba-after { background:rgba(59,184,160,0.06); border:1px solid rgba(59,184,160,0.2); }
+  .ba-label { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:500; margin-bottom:8px; }
+  .ba-before .ba-label { color:#ff6b6b; }
+  .ba-after .ba-label { color:var(--step-s); }
+  .ba-text { font-size:12px; color:#b0b3b8; line-height:1.6; }
+
+  /* DIVIDER */
+  .divider { height:1px; background:var(--border); margin:26px 0; }
+
+  .nav-buttons { display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
+  .btn { padding:14px 28px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; border:none; transition:all 0.2s; letter-spacing:0.02em; }
+  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--muted); }
+  .btn-ghost:hover { border-color:var(--white); color:var(--white); }
+  .btn-primary { background:var(--orange); color:white; }
+  .btn-primary:hover { background:var(--orange-light); transform:translateY(-1px); }
+
+  .step-screen { display:none; }
+  .step-screen.active { display:block; animation:fadeUp 0.3s ease; }
+
+  /* OUTPUT */
+  #output-screen { display:none; }
+  .output-header { text-align:center; padding:48px 0 32px; }
+  .output-header h2 { font-family:'Syne',sans-serif; font-size:36px; font-weight:800; margin-bottom:12px; }
+  .output-header p { color:var(--muted); font-size:15px; }
+
+  .score-card { background:linear-gradient(135deg,rgba(255,92,26,0.08),rgba(91,139,245,0.06)); border:1px solid var(--border); border-radius:20px; padding:36px; text-align:center; margin-bottom:24px; }
+  .score-number { font-family:'Syne',sans-serif; font-size:72px; font-weight:800; background:linear-gradient(135deg,var(--orange),var(--step-i)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; margin-bottom:8px; }
+  .score-label { font-size:13px; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:20px; }
+  .score-insight { font-size:16px; line-height:1.6; color:var(--white); max-width:520px; margin:0 auto; }
+
+  .brief-output { background:var(--panel); border:1px solid var(--border); border-radius:20px; overflow:hidden; margin-bottom:24px; }
+  .brief-section { padding:28px 36px; border-bottom:1px solid var(--border); }
+  .brief-section:last-child { border-bottom:none; }
+  .brief-section-label { font-size:11px; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:12px; font-weight:500; }
+  .brief-section-label.R { color:var(--step-r); }
+  .brief-section-label.I { color:var(--step-i); }
+  .brief-section-label.S { color:var(--step-s); }
+  .brief-section-label.E { color:var(--step-e); }
+  .brief-section h3 { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; margin-bottom:10px; }
+  .brief-content { font-size:14px; color:#b0b3b8; line-height:1.7; }
+  .brief-tag { display:inline-block; padding:4px 12px; border-radius:100px; font-size:12px; margin:3px 3px 3px 0; }
+  .brief-tag.R { background:rgba(255,92,26,0.12); color:var(--step-r); border:1px solid rgba(255,92,26,0.25); }
+  .brief-tag.I { background:rgba(232,160,32,0.12); color:var(--step-i); border:1px solid rgba(232,160,32,0.25); }
+  .brief-tag.S { background:rgba(59,184,160,0.12); color:var(--step-s); border:1px solid rgba(59,184,160,0.25); }
+  .brief-tag.E { background:rgba(91,139,245,0.12); color:var(--step-e); border:1px solid rgba(91,139,245,0.25); }
+
+  .cta-section { background:var(--off-black); border:1px solid var(--border); border-radius:20px; padding:44px; text-align:center; margin-bottom:60px; }
+  .cta-section h3 { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; margin-bottom:12px; }
+  .cta-section p { color:var(--muted); font-size:15px; margin-bottom:28px; max-width:420px; margin-left:auto; margin-right:auto; }
+  .cta-buttons { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .btn-cta { padding:16px 32px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; display:inline-block; }
+  .btn-cta-primary { background:var(--orange); color:white; }
+  .btn-cta-primary:hover { background:var(--orange-light); transform:translateY(-2px); }
+  .btn-cta-ghost { background:transparent; border:1px solid var(--border); color:var(--white); }
+  .btn-cta-ghost:hover { border-color:var(--orange); color:var(--orange); }
+
+  /* SINGLE MESSAGE TOOL */
+  .single-msg-tool { background:var(--off-black); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:22px; }
+  .single-msg-tool label { margin-bottom:10px; }
+  .single-msg-result { margin-top:14px; background:rgba(59,184,160,0.07); border:1px solid rgba(59,184,160,0.2); border-radius:8px; padding:14px 16px; font-size:14px; color:#aef0e4; line-height:1.6; display:none; }
+
+  /* ESG TRANSFORM */
+  .transform-picker { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:16px; }
+  .transform-opt { background:var(--off-black); border:1px solid var(--border); border-radius:10px; padding:14px 12px; text-align:center; cursor:pointer; transition:all 0.2s; }
+  .transform-opt:hover { border-color:var(--muted); }
+  .transform-opt.active-I { border-color:var(--step-i); background:rgba(232,160,32,0.08); }
+  .transform-opt-icon { font-size:22px; margin-bottom:6px; }
+  .transform-opt-label { font-size:11px; color:var(--muted); line-height:1.4; }
+  .transform-opt.active-I .transform-opt-label { color:var(--step-i); }
+
+  @media (max-width:600px) {
+    .card { padding:26px 20px; }
+    .examples-grid, .before-after, .transform-picker { grid-template-columns:1fr; }
+    header { flex-direction:column; gap:12px; align-items:flex-start; }
+    .step-word { display:none; }
+    .brief-section { padding:22px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">Got<span>Safe</span> Media</div>
+    <div class="badge">Free Tool</div>
+  </header>
+
+  <!-- FORM SCREEN -->
+  <div id="form-screen">
+
+    <div class="hero">
+      <div class="hero-eyebrow">RISE Video Brief Builder</div>
+      <h1>Build a video brief your<br>people will <em>actually</em> watch</h1>
+      <p>12 questions. One powerful brief. Built on the RISE framework and Made to Stick principles — so your message lands, not just plays.</p>
+    </div>
+
+    <div class="progress-line">
+      <div class="progress-seg" id="prog-R"></div>
+      <div class="progress-seg" id="prog-I"></div>
+      <div class="progress-seg" id="prog-S"></div>
+      <div class="progress-seg" id="prog-E"></div>
+    </div>
+
+    <div class="steps-nav">
+      <div class="step-pill active-R" data-step="R" onclick="goTo('R')">
+        <span class="step-letter">R</span><span class="step-word">Research</span>
+      </div>
+      <div class="step-pill" data-step="I" onclick="goTo('I')">
+        <span class="step-letter">I</span><span class="step-word">Imagine</span>
+      </div>
+      <div class="step-pill" data-step="S" onclick="goTo('S')">
+        <span class="step-letter">S</span><span class="step-word">Shape</span>
+      </div>
+      <div class="step-pill" data-step="E" onclick="goTo('E')">
+        <span class="step-letter">E</span><span class="step-word">Engage</span>
+      </div>
+    </div>
+
+    <div class="sticky-meter">
+      <span class="sticky-label">Stickiness Score</span>
+      <div class="sticky-bar-outer"><div class="sticky-bar-inner" id="sticky-bar"></div></div>
+      <span class="sticky-pct" id="sticky-pct">0%</span>
+    </div>
+
+    <!-- ======= STEP R: RESEARCH ======= -->
+    <div class="step-screen active" id="screen-R">
+      <div class="card step-R">
+        <div class="card-header">
+          <div class="step-icon">R</div>
+          <div>
+            <div class="card-title">Research — Know Your World</div>
+            <div class="card-subtitle">Great videos don't start with a camera. They start with truth.<br>The more context here, the more powerful your brief.</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <strong>Made to Stick:</strong> Sticky ideas are <strong>Concrete</strong> — they use specific, real-world details people recognise. Vague messages get ignored. Specific messages get remembered.
+        </div>
+
+        <div class="field-group">
+          <label>What type of video are you creating?</label>
+          <div class="chip-group" id="chips-videoType">
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">Safety Campaign</div>
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">Incident Replay / Alert</div>
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">Procedure Explainer</div>
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">Leadership Message</div>
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">HR / Onboarding</div>
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">Environmental / ESG</div>
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">Mental Health & Wellbeing</div>
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">External Marketing</div>
+            <div class="chip" data-group="videoType" onclick="toggleChip(this,'R')">Investor / Board Comms</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Who is your primary audience?</label>
+          <div class="chip-group" id="chips-audience">
+            <div class="chip" data-group="audience" onclick="toggleChip(this,'R')">Frontline Workers</div>
+            <div class="chip" data-group="audience" onclick="toggleChip(this,'R')">FIFO / Remote Crews</div>
+            <div class="chip" data-group="audience" onclick="toggleChip(this,'R')">Contractors</div>
+            <div class="chip" data-group="audience" onclick="toggleChip(this,'R')">Site Supervisors</div>
+            <div class="chip" data-group="audience" onclick="toggleChip(this,'R')">HSE / HR Teams</div>
+            <div class="chip" data-group="audience" onclick="toggleChip(this,'R')">Leadership / C-Suite</div>
+            <div class="chip" data-group="audience" onclick="toggleChip(this,'R')">Clients / Investors</div>
+            <div class="chip" data-group="audience" onclick="toggleChip(this,'R')">Diverse / Multilingual Workforce</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>What's the core problem this video must solve?</label>
+          <textarea id="r-problem" placeholder="e.g. Our crew ignores manual handling protocols. Incidents repeat. Safety alerts are two pages long and nobody reads past the first line..." oninput="updateScore()"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label>What has already been tried — and why didn't it work?</label>
+          <textarea id="r-tried" placeholder="e.g. We sent email bulletins. Nobody opened them. We ran a toolbox talk. Same guys fell asleep. We put up posters. They became wallpaper." oninput="updateScore()"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Are there language, literacy or cultural barriers in your workforce?</label>
+          <div class="chip-group">
+            <div class="chip" data-group="barriers" onclick="toggleChip(this,'R')">Yes — multiple languages</div>
+            <div class="chip" data-group="barriers" onclick="toggleChip(this,'R')">Yes — low literacy levels</div>
+            <div class="chip" data-group="barriers" onclick="toggleChip(this,'R')">Yes — cultural differences</div>
+            <div class="chip" data-group="barriers" onclick="toggleChip(this,'R')">Mainly English-speaking</div>
+            <div class="chip" data-group="barriers" onclick="toggleChip(this,'R')">Not sure</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- REAL EXAMPLES -->
+        <div class="examples-label">💡 Real examples — click one to inspire your brief</div>
+        <div class="examples-grid">
+          <div class="example-card" onclick="useExample(this, 'r-problem', 'Safety alerts after incidents are 3 pages of technical language, legal disclaimers and root cause analysis. By the time crews read them, the message is lost and nobody changes their behaviour.')">
+            <div class="example-emoji">⚠️</div>
+            <div class="example-title">The Safety Alert Nobody Reads</div>
+            <div class="example-desc">Long, technical, buried in disclaimers — your crew switches off before page one is done.</div>
+          </div>
+          <div class="example-card" onclick="useExample(this, 'r-problem', 'Our ESG report is 60 pages of data, charts and compliance language. Investors and employees do not connect with it. It feels like a legal document, not a story about who we are.')">
+            <div class="example-emoji">📊</div>
+            <div class="example-title">The ESG Report Nobody Understands</div>
+            <div class="example-desc">60 pages of data nobody reads. Your sustainability story deserves better than a PDF.</div>
+          </div>
+          <div class="example-card" onclick="useExample(this, 'r-problem', 'New starters sit through a 2-hour induction video filmed in 2017. They disengage within 10 minutes. High turnover means we run this every week — wasting time and money.')">
+            <div class="example-emoji">😴</div>
+            <div class="example-title">The Induction Video from 2017</div>
+            <div class="example-desc">Outdated, boring, and expensive to run. Your crew deserves a welcome they remember.</div>
+          </div>
+          <div class="example-card" onclick="useExample(this, 'r-problem', 'Our MD sends monthly safety emails. Open rate is under 10%. The message is important but it gets lost in inboxes. Leaders need a way to be seen and heard on every site.')">
+            <div class="example-emoji">📧</div>
+            <div class="example-title">The Leadership Email Nobody Opens</div>
+            <div class="example-desc">Your leaders have the right message. It just never reaches the crew that needs it.</div>
+          </div>
+          <div class="example-card" onclick="useExample(this, 'r-problem', 'We want to communicate mental health support options to our workforce but do not know how to do it without stigma or people feeling called out. The message needs to feel normal and human.')">
+            <div class="example-emoji">🧠</div>
+            <div class="example-title">Mental Health — Hard to Say Right</div>
+            <div class="example-desc">Breaking the stigma starts with how you communicate it. Story-driven video does what posters never can.</div>
+          </div>
+          <div class="example-card" onclick="useExample(this, 'r-problem', 'We are tendering for a major contract and need a short, professional company overview video that shows our safety culture, our people, and why we are different — in under 2 minutes.')">
+            <div class="example-emoji">🏆</div>
+            <div class="example-title">Winning the Tender</div>
+            <div class="example-desc">Your capability statement is a Word doc. Your competitors have a 90-second cinematic video.</div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <div></div>
+          <button class="btn btn-primary" onclick="goTo('I')">Next: Imagine →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= STEP I: IMAGINE ======= -->
+    <div class="step-screen" id="screen-I">
+      <div class="card step-I">
+        <div class="card-header">
+          <div class="step-icon">I</div>
+          <div>
+            <div class="card-title">Imagine — One Message. One Feeling.</div>
+            <div class="card-subtitle">The biggest mistake in safety communication? Trying to say everything.<br>Sticky messages say one thing — unforgettably.</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <strong>Made to Stick:</strong> The <strong>Curse of Knowledge</strong> kills most safety comms. You know too much — so you say too much. The antidote: strip your message to its single irreducible core. One sentence. One emotion. One action.
+        </div>
+
+        <!-- SINGLE MESSAGE SIMPLIFIER -->
+        <div class="single-msg-tool">
+          <label>🎯 Single Message Simplifier — What do you need to say?</label>
+          <textarea id="msg-raw" placeholder="Paste your current safety alert, ESG paragraph, or communication here... we'll help you find the one thing that matters." rows="3"></textarea>
+          <button class="btn btn-primary" style="margin-top:12px;padding:10px 22px;font-size:13px;" onclick="simplifyMessage()">Find My Core Message →</button>
+          <div class="single-msg-result" id="msg-result"></div>
+        </div>
+
+        <!-- BEFORE / AFTER: Safety Alert -->
+        <div class="examples-label">⚡ Before & After — Safety Alert</div>
+        <div class="before-after">
+          <div class="ba-box ba-before">
+            <div class="ba-label">❌ Before (typical alert)</div>
+            <div class="ba-text">"Following the recordable incident on 14/03, a full root cause analysis has been conducted. Contributing factors include inadequate pre-task planning, failure to identify hazard controls in the JSEA, and non-compliance with PPE requirements under Section 4.2 of the HSE Management Plan..."</div>
+          </div>
+          <div class="ba-box ba-after">
+            <div class="ba-label">✅ After (Made to Stick)</div>
+            <div class="ba-text"><strong style="color:#aef0e4">One worker went home injured last Tuesday. Here's what happened in 47 seconds — and the one thing we're all changing from today.</strong><br><br><em style="font-size:11px">30-second animated replay. One clear change. Shared across all sites same day.</em></div>
+          </div>
+        </div>
+
+        <!-- BEFORE / AFTER: ESG Report -->
+        <div class="examples-label">🌿 Before & After — ESG Report</div>
+        <div class="before-after">
+          <div class="ba-box ba-before">
+            <div class="ba-label">❌ Before (typical ESG)</div>
+            <div class="ba-text">"In FY2024, the organisation achieved a 12.4% reduction in Scope 2 emissions against the 2019 baseline, with water consumption per tonne of ore processed declining by 8.7%..."</div>
+          </div>
+          <div class="ba-box ba-after">
+            <div class="ba-label">✅ After (visual story)</div>
+            <div class="ba-text"><strong style="color:#aef0e4">We saved enough water this year to fill 47 Olympic swimming pools. Here's how our crew made it happen — in 90 seconds.</strong><br><br><em style="font-size:11px">Animated data story. Human faces. Numbers people feel, not just read.</em></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field-group">
+          <label>What's the single most important message? (One sentence only)</label>
+          <input type="text" id="i-core-message" placeholder='e.g. "One decision changed everything. Here is what we learned."' oninput="updateScore()">
+        </div>
+
+        <div class="field-group">
+          <label>What video style suits your message?</label>
+          <div class="chip-group" id="chips-style">
+            <div class="chip" data-group="style" onclick="toggleChip(this,'I')">AI Cinematic (Premium)</div>
+            <div class="chip" data-group="style" onclick="toggleChip(this,'I')">2D Animation</div>
+            <div class="chip" data-group="style" onclick="toggleChip(this,'I')">2.5D Animation</div>
+            <div class="chip" data-group="style" onclick="toggleChip(this,'I')">3D / 360° Immersive</div>
+            <div class="chip" data-group="style" onclick="toggleChip(this,'I')">Corporate / Live Footage</div>
+            <div class="chip" data-group="style" onclick="toggleChip(this,'I')">Data Visualisation Story</div>
+            <div class="chip" data-group="style" onclick="toggleChip(this,'I')">Mixed / Hybrid</div>
+          </div>
+        </div>
+
+        <!-- STYLE GUIDE -->
+        <div class="examples-label">🎬 Style Guide — Which fits your message?</div>
+        <div class="transform-picker">
+          <div class="transform-opt" onclick="setStyle(this,'AI Cinematic — Premium realism for leadership messages, tenders and external marketing. Looks like a feature film.')">
+            <div class="transform-opt-icon">🎥</div>
+            <div class="transform-opt-label"><strong>AI Cinematic</strong><br>Leadership. Tenders. External.</div>
+          </div>
+          <div class="transform-opt" onclick="setStyle(this,'2D / 2.5D Animation — Clear, engaging, cost-effective. Perfect for procedures, onboarding and safety campaigns across sites.')">
+            <div class="transform-opt-icon">✏️</div>
+            <div class="transform-opt-label"><strong>2D / 2.5D</strong><br>Procedures. Campaigns. Training.</div>
+          </div>
+          <div class="transform-opt" onclick="setStyle(this,'3D / 360° Immersive — Put your crew inside the scenario. Ideal for high-risk environments, incident replays and complex spatial procedures.')">
+            <div class="transform-opt-icon">🌐</div>
+            <div class="transform-opt-label"><strong>3D / 360°</strong><br>Incident replay. Immersive risk.</div>
+          </div>
+          <div class="transform-opt" onclick="setStyle(this,'Data Visualisation Story — Turn your ESG report, stats or compliance data into an animated story people actually feel. Numbers with a human heartbeat.')">
+            <div class="transform-opt-icon">📈</div>
+            <div class="transform-opt-label"><strong>Data Story</strong><br>ESG. Reports. Investor comms.</div>
+          </div>
+          <div class="transform-opt" onclick="setStyle(this,'Corporate / Live Footage — Real people, real stories. Authentic leadership messages and recognition videos that feel human and credible.')">
+            <div class="transform-opt-icon">🎙️</div>
+            <div class="transform-opt-label"><strong>Corporate Live</strong><br>Leaders. Recognition. Culture.</div>
+          </div>
+          <div class="transform-opt" onclick="setStyle(this,'Mixed / Hybrid — Combine animation with real footage for maximum impact. Often the most powerful approach for complex campaigns.')">
+            <div class="transform-opt-icon">⚡</div>
+            <div class="transform-opt-label"><strong>Hybrid</strong><br>Campaigns. Multi-format.</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>What emotion do you want your audience to feel?</label>
+          <div class="chip-group" id="chips-emotion">
+            <div class="chip" data-group="emotion" onclick="toggleChip(this,'I')">Confident & Safe</div>
+            <div class="chip" data-group="emotion" onclick="toggleChip(this,'I')">Motivated to Act</div>
+            <div class="chip" data-group="emotion" onclick="toggleChip(this,'I')">Proud & Valued</div>
+            <div class="chip" data-group="emotion" onclick="toggleChip(this,'I')">Clear & Informed</div>
+            <div class="chip" data-group="emotion" onclick="toggleChip(this,'I')">Urgency — This Matters Now</div>
+            <div class="chip" data-group="emotion" onclick="toggleChip(this,'I')">Trust in Leadership</div>
+            <div class="chip" data-group="emotion" onclick="toggleChip(this,'I')">Inspired to Lead</div>
+            <div class="chip" data-group="emotion" onclick="toggleChip(this,'I')">Psychologically Safe</div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn btn-ghost" onclick="goTo('R')">← Back</button>
+          <button class="btn btn-primary" onclick="goTo('S')">Next: Shape →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= STEP S: SHAPE ======= -->
+    <div class="step-screen" id="screen-S">
+      <div class="card step-S">
+        <div class="card-header">
+          <div class="step-icon">S</div>
+          <div>
+            <div class="card-title">Shape — Structure Makes It Stick</div>
+            <div class="card-subtitle">Every great video has a spine: a hook, a human moment, and a clear call to action.<br>This step turns your idea into a production-ready blueprint.</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <strong>Made to Stick:</strong> <strong>Unexpected + Simple.</strong> Open with a gap — something surprising that creates curiosity. Then fill the gap with the simplest possible truth. That's the arc of every video that actually changes behaviour.
+        </div>
+
+        <!-- STORY ARC BUILDER -->
+        <div class="examples-label">🎬 Your Video Story Arc — Fill in the three acts</div>
+
+        <div class="field-group">
+          <label>The Hook — What's the unexpected opening? (First 5 seconds)</label>
+          <input type="text" id="s-hook" placeholder='e.g. "Last Tuesday, a 12-second decision changed a man\'s life." or "Your ESG report says 12.4% reduction. Here\'s what that actually means."' oninput="updateScore()">
+        </div>
+
+        <div class="field-group">
+          <label>The Human Moment — Who is this really about?</label>
+          <input type="text" id="s-human" placeholder='e.g. "Dave, 14 years on site. Loves footy. Has two kids." or "The team that reduced water use by changing one process."' oninput="updateScore()">
+        </div>
+
+        <div class="field-group">
+          <label>The One Action — What do you want them to do after watching?</label>
+          <input type="text" id="s-cta" placeholder='e.g. "Follow the new lift protocol. Every time. No exceptions." or "Share this with your team before Friday\'s toolbox talk."' oninput="updateScore()">
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field-group">
+          <label>Ideal video length</label>
+          <div class="chip-group" id="chips-length">
+            <div class="chip" data-group="length" onclick="toggleChip(this,'S')">Under 60 seconds (alerts, social)</div>
+            <div class="chip" data-group="length" onclick="toggleChip(this,'S')">1–2 minutes (campaigns, leaders)</div>
+            <div class="chip" data-group="length" onclick="toggleChip(this,'S')">2–4 minutes (training, ESG story)</div>
+            <div class="chip" data-group="length" onclick="toggleChip(this,'S')">4–6 minutes (full procedure)</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Where will this video be seen?</label>
+          <div class="chip-group" id="chips-channel">
+            <div class="chip" data-group="channel" onclick="toggleChip(this,'S')">Site Briefings / Toolbox Talks</div>
+            <div class="chip" data-group="channel" onclick="toggleChip(this,'S')">LMS / Training Platform</div>
+            <div class="chip" data-group="channel" onclick="toggleChip(this,'S')">LinkedIn / Social Media</div>
+            <div class="chip" data-group="channel" onclick="toggleChip(this,'S')">Internal Intranet / TV Screens</div>
+            <div class="chip" data-group="channel" onclick="toggleChip(this,'S')">Website / External</div>
+            <div class="chip" data-group="channel" onclick="toggleChip(this,'S')">Client / Investor Presentations</div>
+            <div class="chip" data-group="channel" onclick="toggleChip(this,'S')">Annual Report / ESG Report</div>
+            <div class="chip" data-group="channel" onclick="toggleChip(this,'S')">Tender / Proposal Documents</div>
+          </div>
+        </div>
+
+        <!-- ESG TRANSFORM SECTION -->
+        <div class="divider"></div>
+        <div class="examples-label">🌿 Turning Boring Data Into Visual Stories — ESG & Report Transformer</div>
+        <div style="background:rgba(59,184,160,0.05);border:1px solid rgba(59,184,160,0.2);border-radius:12px;padding:20px;margin-bottom:22px;">
+          <p style="font-size:13px;color:#9a9da3;margin-bottom:14px;line-height:1.6;">Most ESG reports fail because they speak to compliance, not to people. Below are 6 ways to transform your data into a story your workforce, investors and community will actually feel.</p>
+          <div class="transform-picker">
+            <div class="transform-opt" onclick="setEsgIdea(this,'Turn your top 3 ESG numbers into human equivalents. Not \"12.4% emissions reduction\" — \"We took 2,400 cars off the road this year. Here\'s how.\"')">
+              <div class="transform-opt-icon">🔢</div>
+              <div class="transform-opt-label"><strong>Numbers as People</strong><br>Make data feel human</div>
+            </div>
+            <div class="transform-opt" onclick="setEsgIdea(this,'Show 12 months of progress in a 90-second animated timeline. From challenge to action to result — told through the eyes of one worker.')">
+              <div class="transform-opt-icon">📅</div>
+              <div class="transform-opt-label"><strong>Year in 90 Seconds</strong><br>Animated ESG highlight reel</div>
+            </div>
+            <div class="transform-opt" onclick="setEsgIdea(this,'Interview 3 crew members about what sustainable practice means to them on site. Real voices replace corporate language.')">
+              <div class="transform-opt-icon">🎤</div>
+              <div class="transform-opt-label"><strong>Crew Voice</strong><br>Real stories, real impact</div>
+            </div>
+            <div class="transform-opt" onclick="setEsgIdea(this,'Animate your key environmental data as a visual journey — water saved becomes an ocean, emissions cut becomes cleaner sky. Emotional + accurate.')">
+              <div class="transform-opt-icon">🌊</div>
+              <div class="transform-opt-label"><strong>Data as Nature</strong><br>Visual metaphors that land</div>
+            </div>
+            <div class="transform-opt" onclick="setEsgIdea(this,'Open your board presentation with a 60-second video showing your safety and sustainability story — before a single slide. Creates emotional context for all the data that follows.')">
+              <div class="transform-opt-icon">📋</div>
+              <div class="transform-opt-label"><strong>Board Opener</strong><br>60-sec before the slides</div>
+            </div>
+            <div class="transform-opt" onclick="setEsgIdea(this,'Publish a 2-minute social ESG story on LinkedIn each quarter — one initiative, one outcome, one human face. Builds brand equity while meeting reporting obligations.')">
+              <div class="transform-opt-icon">📱</div>
+              <div class="transform-opt-label"><strong>Social ESG Series</strong><br>Quarterly storytelling</div>
+            </div>
+          </div>
+          <div class="single-msg-result" id="esg-idea" style="display:none;"></div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn btn-ghost" onclick="goTo('I')">← Back</button>
+          <button class="btn btn-primary" onclick="goTo('E')">Next: Engage →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= STEP E: ENGAGE ======= -->
+    <div class="step-screen" id="screen-E">
+      <div class="card step-E">
+        <div class="card-header">
+          <div class="step-icon">E</div>
+          <div>
+            <div class="card-title">Engage — Keep the Message Alive</div>
+            <div class="card-subtitle">A video that plays once is a video that fails. Engagement is what happens<br>before, during and after the screen goes dark.</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <strong>Made to Stick:</strong> <strong>Stories</strong> are the delivery mechanism of sticky ideas. They don't just inform — they simulate. A crew that watches a real story rehearses the right behaviour before they ever face the situation.
+        </div>
+
+        <div class="field-group">
+          <label>How will you measure success?</label>
+          <div class="chip-group" id="chips-success">
+            <div class="chip" data-group="success" onclick="toggleChip(this,'E')">Reduction in incidents / LTIs</div>
+            <div class="chip" data-group="success" onclick="toggleChip(this,'E')">Video completion / view rate</div>
+            <div class="chip" data-group="success" onclick="toggleChip(this,'E')">Crew feedback scores</div>
+            <div class="chip" data-group="success" onclick="toggleChip(this,'E')">Compliance rate improvement</div>
+            <div class="chip" data-group="success" onclick="toggleChip(this,'E')">Social media engagement</div>
+            <div class="chip" data-group="success" onclick="toggleChip(this,'E')">Tender / business enquiries</div>
+            <div class="chip" data-group="success" onclick="toggleChip(this,'E')">Staff retention improvement</div>
+            <div class="chip" data-group="success" onclick="toggleChip(this,'E')">Leadership visibility scores</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>How will you keep the conversation going after the video?</label>
+          <div class="chip-group" id="chips-followup">
+            <div class="chip" data-group="followup" onclick="toggleChip(this,'E')">Toolbox Talk Discussion Guide</div>
+            <div class="chip" data-group="followup" onclick="toggleChip(this,'E')">Short Quiz / Knowledge Check</div>
+            <div class="chip" data-group="followup" onclick="toggleChip(this,'E')">Leadership Q&A Session</div>
+            <div class="chip" data-group="followup" onclick="toggleChip(this,'E')">Poster / Site Visual Reminder</div>
+            <div class="chip" data-group="followup" onclick="toggleChip(this,'E')">Monthly Video Series</div>
+            <div class="chip" data-group="followup" onclick="toggleChip(this,'E')">Crew Feedback Form</div>
+            <div class="chip" data-group="followup" onclick="toggleChip(this,'E')">Social Share Campaign</div>
+          </div>
+        </div>
+
+        <!-- ENGAGEMENT AMPLIFIERS -->
+        <div class="examples-label">🚀 Engagement Amplifiers — What turns a video into a movement</div>
+        <div class="examples-grid">
+          <div class="example-card" onclick="toggleExampleHighlight(this)">
+            <div class="example-emoji">🏅</div>
+            <div class="example-title">Recognition Loops</div>
+            <div class="example-desc">After the video, call out crews who already live the message. Name them. Film them. Safety heroes create safety culture.</div>
+          </div>
+          <div class="example-card" onclick="toggleExampleHighlight(this)">
+            <div class="example-emoji">📲</div>
+            <div class="example-title">Share-Before-Shift</div>
+            <div class="example-desc">Design videos under 60 seconds so supervisors share them at the start of every shift. One message. Every morning.</div>
+          </div>
+          <div class="example-card" onclick="toggleExampleHighlight(this)">
+            <div class="example-emoji">🌍</div>
+            <div class="example-title">Multilingual Versions</div>
+            <div class="example-desc">One animated video, multiple language voiceovers. Same message, every crew, every language. Inclusion is safety.</div>
+          </div>
+          <div class="example-card" onclick="toggleExampleHighlight(this)">
+            <div class="example-emoji">📊</div>
+            <div class="example-title">30-Day Impact Report</div>
+            <div class="example-desc">Track what changed 30 days after launch. Views, near-miss reports, toolbox conversations. Data proves the ROI.</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field-group">
+          <label>Your name & company</label>
+          <input type="text" id="e-name" placeholder="e.g. Amanda Chen — Head of Safety, Goldfields Corp" oninput="updateScore()">
+        </div>
+
+        <div class="field-group">
+          <label>Timeline & budget range (optional — helps us brief correctly)</label>
+          <div class="chip-group" id="chips-budget">
+            <div class="chip" data-group="budget" onclick="toggleChip(this,'E')">Urgent — need it in 2 weeks</div>
+            <div class="chip" data-group="budget" onclick="toggleChip(this,'E')">4–6 weeks</div>
+            <div class="chip" data-group="budget" onclick="toggleChip(this,'E')">2–3 months</div>
+            <div class="chip" data-group="budget" onclick="toggleChip(this,'E')">Flexible timeline</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Anything else we need to know?</label>
+          <textarea id="e-notes" placeholder="Brand guidelines, existing assets, language requirements, internal approvals process, previous videos we can learn from..." oninput="updateScore()"></textarea>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn btn-ghost" onclick="goTo('S')">← Back</button>
+          <button class="btn btn-primary" onclick="generateBrief()">Generate My Video Brief →</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end form-screen -->
+
+  <!-- ======= OUTPUT SCREEN ======= -->
+  <div id="output-screen">
+    <div class="output-header">
+      <h2>Your RISE Video Brief</h2>
+      <p>Built on the framework that makes messages stick — not just play.</p>
+    </div>
+
+    <div class="score-card">
+      <div class="score-number" id="final-score">0%</div>
+      <div class="score-label">Stickiness Score</div>
+      <div class="score-insight" id="score-insight">—</div>
+    </div>
+
+    <div class="brief-output" id="brief-output"></div>
+
+    <div class="cta-section">
+      <h3>Ready to bring this to life?</h3>
+      <p>Send us your brief and we'll come back with a creative concept, timeline, and quote — within 48 hours.</p>
+      <div class="cta-buttons">
+        <a href="mailto:aa@gotsafemedia.com.au?subject=RISE Video Brief Request" class="btn-cta btn-cta-primary">📩 Send Brief to GotSafe</a>
+        <button class="btn-cta btn-cta-ghost" onclick="window.print()">🖨 Print / Save PDF</button>
+        <button class="btn-cta btn-cta-ghost" onclick="resetTool()">↩ Start Again</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<script>
+  const state = { current:'R', chips:{}, completed:[] };
+  const stepOrder = ['R','I','S','E'];
+
+  function goTo(step) {
+    stepOrder.forEach(s => {
+      document.getElementById('screen-'+s).classList.remove('active');
+      const pill = document.querySelector('[data-step="'+s+'"]');
+      pill.className = 'step-pill';
+    });
+    state.current = step;
+    document.getElementById('screen-'+step).classList.add('active');
+    document.querySelector('[data-step="'+step+'"]').classList.add('active-'+step);
+    updateProgress();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function toggleChip(el, color) {
+    const group = el.getAttribute('data-group');
+    if (!state.chips[group]) state.chips[group] = [];
+    el.classList.toggle('selected-'+color);
+    const val = el.textContent;
+    if (el.classList.contains('selected-'+color)) {
+      state.chips[group].push(val);
+    } else {
+      state.chips[group] = state.chips[group].filter(v => v !== val);
+    }
+    updateScore();
+  }
+
+  function useExample(card, fieldId, text) {
+    document.querySelectorAll('.example-card').forEach(c => c.classList.remove('used'));
+    card.classList.add('used');
+    const field = document.getElementById(fieldId);
+    if (field) { field.value = text; updateScore(); }
+  }
+
+  function toggleExampleHighlight(card) {
+    card.classList.toggle('used');
+  }
+
+  function setStyle(el, desc) {
+    document.querySelectorAll('.transform-opt').forEach(o => o.classList.remove('active-I'));
+    el.classList.add('active-I');
+    const field = document.getElementById('i-core-message');
+    if (field && !field.value) {
+      field.placeholder = desc;
+    }
+  }
+
+  function setEsgIdea(el, text) {
+    document.querySelectorAll('#screen-S .transform-opt').forEach(o => o.classList.remove('active-I'));
+    el.classList.add('active-I');
+    const box = document.getElementById('esg-idea');
+    box.style.display = 'block';
+    box.innerHTML = '<strong style="color:var(--step-s)">💡 Idea for your brief:</strong><br>' + text;
+  }
+
+  function simplifyMessage() {
+    const raw = document.getElementById('msg-raw').value.trim();
+    const result = document.getElementById('msg-result');
+    if (!raw) {
+      result.style.display = 'block';
+      result.innerHTML = '<strong style="color:var(--orange)">Tip:</strong> Paste your existing safety alert, ESG paragraph, or communication above — then we\'ll help you find the single message that matters.';
+      return;
+    }
+    const words = raw.split(' ').length;
+    result.style.display = 'block';
+    result.innerHTML = `
+      <strong style="color:var(--step-s)">✅ Your Single Message Challenge:</strong><br><br>
+      Your message is currently <strong>${words} words</strong>. A sticky video message should be under 15.<br><br>
+      <strong>Ask yourself:</strong><br>
+      1. If your crew remembered <em>one thing</em> from this — what would it be?<br>
+      2. What's the human story behind these words?<br>
+      3. What's the one action you want them to take?<br><br>
+      <em style="color:var(--muted)">Fill in the "Single Most Important Message" field below — then GotSafe will shape this into a video arc that sticks.</em>
+    `;
+  }
+
+  function updateScore() {
+    let score = 0;
+    const fields = ['r-problem','r-tried','i-core-message','s-hook','s-human','s-cta','e-name'];
+    fields.forEach(f => {
+      const el = document.getElementById(f);
+      if (el && el.value.trim().length > 5) score += 10;
+    });
+    const chipGroups = ['videoType','audience','barriers','style','emotion','length','channel','success','followup'];
+    chipGroups.forEach(g => {
+      if (state.chips[g] && state.chips[g].length > 0) score += 4;
+    });
+    score = Math.min(score, 100);
+    document.getElementById('sticky-bar').style.width = score + '%';
+    document.getElementById('sticky-pct').textContent = score + '%';
+  }
+
+  function updateProgress() {
+    stepOrder.forEach((s, i) => {
+      const seg = document.getElementById('prog-'+s);
+      seg.className = 'progress-seg';
+      if (stepOrder.indexOf(state.current) >= i) seg.classList.add('done-'+s);
+    });
+  }
+
+  function getChips(group) {
+    return (state.chips[group] || []).join(', ') || '—';
+  }
+
+  function val(id) {
+    const el = document.getElementById(id);
+    return el ? (el.value.trim() || '—') : '—';
+  }
+
+  function generateBrief() {
+    const score = parseInt(document.getElementById('sticky-pct').textContent);
+    let insight = '';
+    if (score >= 80) insight = 'Exceptional brief. Your video has a strong foundation for real behaviour change. GotSafe has everything needed to produce something your crew will not forget.';
+    else if (score >= 55) insight = 'Solid foundation. A few more details will sharpen the output — our team will work through the gaps with you in a 30-minute discovery call.';
+    else insight = "You've made a start. The more context you give us, the stickier your video. Book a free call and we'll fill the gaps together.";
+
+    document.getElementById('final-score').textContent = score + '%';
+    document.getElementById('score-insight').textContent = insight;
+
+    const brief = document.getElementById('brief-output');
+    brief.innerHTML = `
+      <div class="brief-section">
+        <div class="brief-section-label R">R — Research</div>
+        <h3>Context, Audience & The Real Problem</h3>
+        <div class="brief-content">
+          <strong style="color:#9a9da3">Video Type:</strong><br>
+          ${(state.chips['videoType']||[]).map(c=>'<span class="brief-tag R">'+c+'</span>').join('') || '—'}
+          <br><br>
+          <strong style="color:#9a9da3">Primary Audience:</strong><br>
+          ${(state.chips['audience']||[]).map(c=>'<span class="brief-tag R">'+c+'</span>').join('') || '—'}
+          <br><br>
+          <strong style="color:#9a9da3">Workforce Barriers:</strong> ${getChips('barriers')}<br><br>
+          <strong style="color:#9a9da3">Core Problem:</strong><br><p style="margin-top:6px">${val('r-problem')}</p>
+          <br><strong style="color:#9a9da3">What's Been Tried:</strong><br><p style="margin-top:6px">${val('r-tried')}</p>
+        </div>
+      </div>
+
+      <div class="brief-section">
+        <div class="brief-section-label I">I — Imagine</div>
+        <h3>The Single Message & Visual Direction</h3>
+        <div class="brief-content">
+          <strong style="color:#9a9da3">Core Message:</strong><br>
+          <p style="margin-top:6px;font-size:17px;color:#e8e0d0;font-style:italic;line-height:1.5">"${val('i-core-message')}"</p>
+          <br>
+          <strong style="color:#9a9da3">Video Style:</strong><br>
+          ${(state.chips['style']||[]).map(c=>'<span class="brief-tag I">'+c+'</span>').join('') || '—'}
+          <br><br>
+          <strong style="color:#9a9da3">Target Emotion:</strong><br>
+          ${(state.chips['emotion']||[]).map(c=>'<span class="brief-tag I">'+c+'</span>').join('') || '—'}
+        </div>
+      </div>
+
+      <div class="brief-section">
+        <div class="brief-section-label S">S — Shape</div>
+        <h3>Story Arc, Format & Distribution</h3>
+        <div class="brief-content">
+          <strong style="color:#9a9da3">The Hook (Opening 5 seconds):</strong><br>
+          <p style="margin-top:6px">${val('s-hook')}</p><br>
+          <strong style="color:#9a9da3">The Human Moment:</strong><br>
+          <p style="margin-top:6px">${val('s-human')}</p><br>
+          <strong style="color:#9a9da3">The One Action (CTA):</strong><br>
+          <p style="margin-top:6px">${val('s-cta')}</p><br>
+          <strong style="color:#9a9da3">Length:</strong> ${getChips('length')}<br><br>
+          <strong style="color:#9a9da3">Distribution Channels:</strong><br>
+          ${(state.chips['channel']||[]).map(c=>'<span class="brief-tag S">'+c+'</span>').join('') || '—'}
+        </div>
+      </div>
+
+      <div class="brief-section">
+        <div class="brief-section-label E">E — Engage</div>
+        <h3>Measurement, Follow-Through & Timeline</h3>
+        <div class="brief-content">
+          <strong style="color:#9a9da3">Success Metrics:</strong><br>
+          ${(state.chips['success']||[]).map(c=>'<span class="brief-tag E">'+c+'</span>').join('') || '—'}
+          <br><br>
+          <strong style="color:#9a9da3">Engagement Strategy After Video:</strong><br>
+          ${(state.chips['followup']||[]).map(c=>'<span class="brief-tag E">'+c+'</span>').join('') || '—'}
+          <br><br>
+          <strong style="color:#9a9da3">Timeline:</strong> ${getChips('budget')}<br><br>
+          <strong style="color:#9a9da3">Submitted By:</strong> ${val('e-name')}<br><br>
+          ${val('e-notes') !== '—' ? '<strong style="color:#9a9da3">Additional Notes:</strong><br><p style="margin-top:6px">'+val('e-notes')+'</p>' : ''}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('form-screen').style.display = 'none';
+    document.getElementById('output-screen').style.display = 'block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function resetTool() {
+    document.getElementById('form-screen').style.display = 'block';
+    document.getElementById('output-screen').style.display = 'none';
+    state.chips = {};
+    state.current = 'R';
+    document.querySelectorAll('.chip').forEach(c => { c.className = 'chip'; });
+    document.querySelectorAll('.transform-opt').forEach(o => o.classList.remove('active-I'));
+    document.querySelectorAll('.example-card').forEach(c => c.classList.remove('used'));
+    ['r-problem','r-tried','i-core-message','msg-raw','s-hook','s-human','s-cta','e-name','e-notes'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('sticky-bar').style.width = '0%';
+    document.getElementById('sticky-pct').textContent = '0%';
+    document.getElementById('msg-result').style.display = 'none';
+    document.getElementById('esg-idea').style.display = 'none';
+    goTo('R');
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
