@@ -5,6 +5,8 @@ const stepOrder = { R: 0, I: 1, S: 2, E: 3 };
 let selectedStyle = "";
 let selectedEsgOpt = "";
 let score = 0;
+let lastAiData = null;
+let lastFormData = null;
 
 // ─── NAVIGATION ──────────────────────────────────────────
 function goTo(step) {
@@ -20,7 +22,6 @@ function goTo(step) {
   });
   document.getElementById("btn-" + step).classList.add("active-" + step);
 
-  // Progress segments
   steps.forEach((s, i) => {
     const seg = document.getElementById("prog-" + s);
     seg.className = "prog-seg prog-" + s;
@@ -161,12 +162,14 @@ function updateScore() {
     { id: "s-hook", pts: 15 },
     { id: "s-human", pts: 10 },
     { id: "s-cta", pts: 10 },
-    { id: "e-name", pts: 5 },
+    { id: "r-fullname", pts: 5 },
+    { id: "r-email", pts: 5 },
+    { id: "r-company", pts: 5 },
   ];
   checks.forEach((c) => {
     max += c.pts;
     const el = document.getElementById(c.id);
-    if (el && el.value.trim().length > 10) pts += c.pts;
+    if (el && el.value.trim().length > 2) pts += c.pts;
   });
 
   const chipChecks = [
@@ -188,17 +191,21 @@ function updateScore() {
   score = Math.round((pts / max) * 100);
   document.getElementById("sticky-fill").style.width = score + "%";
   document.getElementById("sticky-pct").textContent = score + "%";
-
   const pct = document.getElementById("progress-pct");
   if (pct) pct.textContent = score + "%";
 }
 
-// ─── GENERATE BRIEF ──────────────────────────────────────
-async function generateBrief() {
-  document.getElementById("loading-overlay").classList.add("show");
-
-  // Collect all data
-  const data = {
+// ─── COLLECT ALL FORM DATA ───────────────────────────────
+function collectFormData() {
+  return {
+    // Contact info
+    fullname: document.getElementById("r-fullname").value.trim() || "—",
+    email: document.getElementById("r-email").value.trim() || "—",
+    phone: document.getElementById("r-phone").value.trim() || "—",
+    company: document.getElementById("r-company").value.trim() || "—",
+    role: document.getElementById("r-role").value.trim() || "—",
+    industry: document.getElementById("r-industry").value.trim() || "—",
+    // Brief data
     videoType: getChipValues("videoType").join(", ") || "—",
     audience: getChipValues("audience").join(", ") || "—",
     problem: document.getElementById("r-problem").value.trim() || "—",
@@ -214,14 +221,26 @@ async function generateBrief() {
     channel: getChipValues("channel").join(", ") || "—",
     success: getChipValues("success").join(", ") || "—",
     followup: getChipValues("followup").join(", ") || "—",
-    name: document.getElementById("e-name").value.trim() || "—",
     budget: getChipValues("budget").join(", ") || "—",
     notes: document.getElementById("e-notes").value.trim() || "—",
   };
+}
+
+// ─── GENERATE BRIEF ──────────────────────────────────────
+async function generateBrief() {
+  document.getElementById("loading-overlay").classList.add("show");
+
+  const data = collectFormData();
+  lastFormData = data;
 
   const prompt = `You are a world-class safety communications strategist and video producer at GotSafe Media. Based on the RISE brief below, generate a complete, compelling production brief that would excite a creative director.
 
 RISE BRIEF DATA:
+- Client Name: ${data.fullname}
+- Company: ${data.company}
+- Role: ${data.role}
+- Industry: ${data.industry}
+- Email: ${data.email}
 - Video Type: ${data.videoType}
 - Audience: ${data.audience}
 - Core Problem: ${data.problem}
@@ -237,7 +256,6 @@ RISE BRIEF DATA:
 - Distribution Channel: ${data.channel}
 - Success Metrics: ${data.success}
 - Follow-Up Plan: ${data.followup}
-- Client: ${data.name}
 - Timeline: ${data.budget}
 - Additional Notes: ${data.notes}
 
@@ -248,7 +266,7 @@ Generate a JSON object with these exact keys (no markdown, pure JSON):
   "productionNotes": "3-4 sentences on recommended production approach, visual style, tone",
   "scriptDirection": "3 bullet points for scriptwriter: opening beat, emotional pivot, closing call to action (format as bullet • points)",
   "audienceInsight": "2 sentences: who this audience really is and what will make them actually pay attention",
-  "stickinessScore": A number 1-100 rating how sticky this brief is based on Made to Stick principles,
+  "stickinessScore": 75,
   "stickinessNote": "One sentence explaining the score and the #1 thing that would improve it",
   "redFlag": "One sentence: the biggest risk if this video is NOT made well",
   "quickWin": "One concrete, specific production suggestion that would elevate this video above average"
@@ -289,11 +307,261 @@ Generate a JSON object with these exact keys (no markdown, pure JSON):
     };
   }
 
+  lastAiData = aiData;
   document.getElementById("loading-overlay").classList.remove("show");
+
+  // Render the full output screen
   renderOutput(data, aiData);
+
+  // Open the modal with the brief
+  openBriefModal(data, aiData);
 }
 
-// ─── RENDER OUTPUT ───────────────────────────────────────
+// ─── OPEN BRIEF MODAL ────────────────────────────────────
+function openBriefModal(data, ai) {
+  const finalScore = ai.stickinessScore || score;
+  const modalTitle = document.getElementById("modal-headline");
+  if (modalTitle) modalTitle.textContent = ai.headline || "Your RISE Brief";
+
+  const tagR = (t) => `<span class="modal-tag R">${t}</span>`;
+  const tagI = (t) => `<span class="modal-tag I">${t}</span>`;
+  const tagS = (t) => `<span class="modal-tag S">${t}</span>`;
+  const tagE = (t) => `<span class="modal-tag E">${t}</span>`;
+
+  const scriptBullets = (ai.scriptDirection || "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map(
+      (l) =>
+        `<div style="margin-bottom:7px;font-size:13px;color:var(--gs-cream);line-height:1.55">${l}</div>`,
+    )
+    .join("");
+
+  const dateStr = new Date().toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const getScoreColor = (s) => {
+    if (s >= 75) return "#73a36d";
+    if (s >= 50) return "#c9a228";
+    return "#e07832";
+  };
+
+  document.getElementById("modal-body").innerHTML = `
+    <!-- Score Row -->
+    <div class="modal-score-row">
+      <div class="modal-score-num" style="background:linear-gradient(135deg,${getScoreColor(finalScore)},#c8d832);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${finalScore}%</div>
+      <div class="modal-score-info">
+        <div class="modal-score-label">Stickiness Score</div>
+        <div class="modal-score-note">${ai.stickinessNote || ""}</div>
+        <div style="font-size:10px;color:rgba(184,173,151,0.3);margin-top:6px;letter-spacing:0.06em">${dateStr}</div>
+      </div>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="modal-contact-grid">
+      ${data.fullname !== "—" ? `<div class="modal-contact-item"><div class="modal-contact-label">Name</div><div class="modal-contact-val">${data.fullname}</div></div>` : ""}
+      ${data.company !== "—" ? `<div class="modal-contact-item"><div class="modal-contact-label">Company</div><div class="modal-contact-val">${data.company}</div></div>` : ""}
+      ${data.role !== "—" ? `<div class="modal-contact-item"><div class="modal-contact-label">Role</div><div class="modal-contact-val">${data.role}</div></div>` : ""}
+      ${data.email !== "—" ? `<div class="modal-contact-item"><div class="modal-contact-label">Email</div><div class="modal-contact-val">${data.email}</div></div>` : ""}
+      ${data.phone !== "—" ? `<div class="modal-contact-item"><div class="modal-contact-label">Phone</div><div class="modal-contact-val">${data.phone}</div></div>` : ""}
+      ${data.industry !== "—" ? `<div class="modal-contact-item"><div class="modal-contact-label">Industry</div><div class="modal-contact-val">${data.industry}</div></div>` : ""}
+    </div>
+
+    <!-- Opening Line -->
+    <div class="modal-opening-line">"${ai.oneLiner}"</div>
+
+    <!-- Research -->
+    <div class="modal-section">
+      <div class="modal-section-title">🔍 Research — What We Know</div>
+      <div class="modal-section-val">
+        <div style="margin-bottom:10px">${tagR(data.videoType)} ${data.audience
+          .split(", ")
+          .map((a) => tagR(a))
+          .join("")}</div>
+        <div style="margin-bottom:8px"><strong style="color:var(--gs-white)">Problem:</strong> ${data.problem}</div>
+        ${data.tried !== "—" ? `<div style="margin-bottom:8px"><strong style="color:var(--gs-white)">What failed:</strong> ${data.tried}</div>` : ""}
+        ${data.barriers !== "—" ? `<div><strong style="color:var(--gs-white)">Barriers:</strong> ${data.barriers}</div>` : ""}
+      </div>
+    </div>
+
+    <!-- Audience Insight -->
+    <div class="modal-section">
+      <div class="modal-section-title">👥 Audience Insight</div>
+      <div class="modal-section-val">${ai.audienceInsight}</div>
+    </div>
+
+    <!-- Imagine -->
+    <div class="modal-section">
+      <div class="modal-section-title">💡 Imagine — Core Message & Style</div>
+      <div class="modal-section-val">
+        <div style="font-size:15px;font-weight:500;color:var(--gs-white);margin-bottom:10px;line-height:1.4">${data.coreMessage}</div>
+        <div style="margin-bottom:10px">${data.style
+          .split(", ")
+          .map((s) => tagI(s))
+          .join("")} ${data.emotion
+          .split(", ")
+          .map((e) => tagI(e))
+          .join("")}</div>
+        <div>${ai.productionNotes}</div>
+      </div>
+    </div>
+
+    <!-- Shape -->
+    <div class="modal-section">
+      <div class="modal-section-title">📐 Shape — Script Direction</div>
+      <div class="modal-section-val">
+        <div style="background:rgba(58,158,136,0.04);border:1px solid rgba(58,158,136,0.12);border-radius:10px;padding:14px;margin-bottom:12px">${scriptBullets}</div>
+        <div>${data.channel
+          .split(", ")
+          .map((c) => tagS(c))
+          .join("")} ${data.length !== "—" ? tagS(data.length) : ""}</div>
+      </div>
+    </div>
+
+    <!-- Engage -->
+    <div class="modal-section">
+      <div class="modal-section-title">📣 Engage — Measurement & Follow-Through</div>
+      <div class="modal-section-val">
+        <div style="margin-bottom:8px">${data.success
+          .split(", ")
+          .map((s) => tagE(s))
+          .join("")}</div>
+        <div style="margin-bottom:8px">${data.followup
+          .split(", ")
+          .map((f) => tagE(f))
+          .join("")}</div>
+        ${data.budget !== "—" ? `<div style="font-size:13px;color:rgba(184,173,151,0.55);margin-top:10px">⏱ Timeline: <strong style="color:var(--gs-white)">${data.budget}</strong></div>` : ""}
+        ${data.notes !== "—" ? `<div style="font-size:13px;color:rgba(184,173,151,0.45);margin-top:6px">Notes: ${data.notes}</div>` : ""}
+      </div>
+    </div>
+
+    <!-- Quick Win + Red Flag -->
+    <div class="modal-alert-row">
+      <div class="modal-alert-box green">
+        <span class="modal-alert-label">⚡ Quick Win</span>
+        ${ai.quickWin}
+      </div>
+      <div class="modal-alert-box red">
+        <span class="modal-alert-label">⚠️ Red Flag</span>
+        ${ai.redFlag}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("brief-modal").classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+// ─── CLOSE MODAL ─────────────────────────────────────────
+function closeModal() {
+  document.getElementById("brief-modal").classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+// Close modal on overlay click
+document.addEventListener("DOMContentLoaded", () => {
+  const overlay = document.getElementById("brief-modal");
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
+    });
+  }
+  // Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
+});
+
+// ─── SEND EMAIL FROM MODAL ───────────────────────────────
+function sendEmailFromModal() {
+  if (!lastFormData || !lastAiData) return;
+  const d = lastFormData;
+  const ai = lastAiData;
+  const dateStr = new Date().toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const subject = encodeURIComponent(
+    `RISE Brief — ${d.company !== "—" ? d.company : d.fullname} — ${ai.headline}`,
+  );
+
+  const body = encodeURIComponent(
+    `
+RISE VIDEO BRIEF — GOTSAFE MEDIA
+Generated: ${dateStr}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BRIEF TITLE: ${ai.headline}
+STICKINESS SCORE: ${ai.stickinessScore || score}%
+
+━━━ CLIENT DETAILS ━━━━━━━━━━━━━━━━━━━━━
+Name:     ${d.fullname}
+Company:  ${d.company}
+Role:     ${d.role}
+Industry: ${d.industry}
+Email:    ${d.email}
+Phone:    ${d.phone}
+
+━━━ RESEARCH — KNOW YOUR WORLD ━━━━━━━━━
+Video Type:   ${d.videoType}
+Audience:     ${d.audience}
+Core Problem: ${d.problem}
+What Failed:  ${d.tried}
+Barriers:     ${d.barriers}
+
+━━━ IMAGINE — ONE MESSAGE ━━━━━━━━━━━━━━
+Opening Line:  "${ai.oneLiner}"
+Core Message:  ${d.coreMessage}
+Style:         ${d.style}
+Emotion:       ${d.emotion}
+
+Audience Insight:
+${ai.audienceInsight}
+
+Production Notes:
+${ai.productionNotes}
+
+━━━ SHAPE — SCRIPT DIRECTION ━━━━━━━━━━
+Hook (Opening):  ${d.hook}
+Human Moment:    ${d.human}
+Call to Action:  ${d.cta}
+Video Length:    ${d.length}
+Distribution:    ${d.channel}
+
+Script Direction:
+${ai.scriptDirection}
+
+━━━ ENGAGE — KEEP THE MESSAGE ALIVE ━━━
+Success Metrics: ${d.success}
+Follow-Up Plan:  ${d.followup}
+Timeline:        ${d.budget}
+Notes:           ${d.notes}
+
+━━━ AI RECOMMENDATIONS ━━━━━━━━━━━━━━━━
+⚡ Quick Win:
+${ai.quickWin}
+
+⚠️ Red Flag (if done wrong):
+${ai.redFlag}
+
+📊 Stickiness Note:
+${ai.stickinessNote}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Built with the RISE Video Brief Builder — GotSafe Media
+  `.trim(),
+  );
+
+  window.location.href = `mailto:aa@gotsafemedia.com.au?subject=${subject}&body=${body}`;
+}
+
+// ─── RENDER OUTPUT (page below) ──────────────────────────
 function renderOutput(formData, ai) {
   document.getElementById("form-screen").style.display = "none";
   document.getElementById("output-screen").style.display = "block";
@@ -337,6 +605,14 @@ function renderOutput(formData, ai) {
     </div>
 
     <div class="brief-section">
+      <div class="brief-key">Client</div>
+      <div class="brief-val">
+        <strong>${formData.fullname}</strong>${formData.company !== "—" ? ` — ${formData.company}` : ""}${formData.role !== "—" ? ` | ${formData.role}` : ""}
+        ${formData.email !== "—" ? `<div style="font-size:12px;color:rgba(184,173,151,0.45);margin-top:4px">${formData.email}${formData.phone !== "—" ? " · " + formData.phone : ""}</div>` : ""}
+      </div>
+    </div>
+
+    <div class="brief-section">
       <div class="brief-key">Opening Line</div>
       <div class="brief-val" style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gs-white);line-height:1.3">"${ai.oneLiner}"</div>
     </div>
@@ -377,9 +653,7 @@ function renderOutput(formData, ai) {
     <div class="brief-section">
       <div class="brief-key">Shape — Script Direction</div>
       <div class="brief-val">
-        <div style="background:rgba(58,158,136,0.04);border:1px solid rgba(58,158,136,0.12);border-radius:10px;padding:16px;margin-bottom:12px">
-          ${scriptBullets}
-        </div>
+        <div style="background:rgba(58,158,136,0.04);border:1px solid rgba(58,158,136,0.12);border-radius:10px;padding:16px;margin-bottom:12px">${scriptBullets}</div>
         ${formData.channel
           .split(", ")
           .map((c) => tagS(c))
@@ -414,26 +688,20 @@ function renderOutput(formData, ai) {
       <div class="brief-val" style="color:rgba(200,100,100,0.75)">${ai.redFlag}</div>
     </div>
 
-    ${
-      formData.name !== "—"
-        ? `
-    <div class="brief-section" style="border-bottom:none">
-      <div class="brief-key">Submitted By</div>
-      <div class="brief-val" style="font-weight:400">${formData.name}</div>
-    </div>`
-        : ""
-    }
+    <div class="brief-section" style="border-bottom:none;text-align:center;padding-bottom:28px">
+      <button class="btn-lime" style="margin:0 auto" onclick="openBriefModal(lastFormData, lastAiData)">📋 View Full Brief Summary</button>
+    </div>
   `;
 }
 
 // ─── RESET ───────────────────────────────────────────────
 function resetTool() {
+  closeModal();
   document.getElementById("form-screen").style.display = "block";
   document.getElementById("output-screen").style.display = "none";
   document.querySelectorAll(".chip").forEach((c) => (c.className = "chip"));
   document.querySelectorAll(".gs-input").forEach((i) => {
-    if (i.tagName === "TEXTAREA") i.value = "";
-    else i.value = "";
+    i.value = "";
   });
   document
     .querySelectorAll(".s-opt")
@@ -447,6 +715,8 @@ function resetTool() {
   selectedStyle = "";
   selectedEsgOpt = "";
   score = 0;
+  lastFormData = null;
+  lastAiData = null;
   goTo("R");
 }
 

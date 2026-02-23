@@ -10,32 +10,21 @@
       rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/style.css" />
-
-    <!-- AOS — Animate On Scroll -->
+    <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
     />
-
     <style>
-      /* ============================================================
-         GLOBAL AOS CONFIG — এখানে সব কিছু control করুন
-         duration, delay-step, easing একবার বদলালে সব জায়গায় লাগবে
-         ============================================================ */
       :root {
         --aos-duration: 650ms;
-        --aos-delay-step: 80ms; /* stagger: প্রতিটি item-এর মধ্যে gap */
+        --aos-delay-step: 80ms;
         --aos-easing: cubic-bezier(0.22, 1, 0.36, 1);
       }
-
-      /* সব AOS element-এ global duration ও easing apply */
       [data-aos] {
         transition-duration: var(--aos-duration) !important;
         transition-timing-function: var(--aos-easing) !important;
       }
-
-      /* data-aos-order="1..9" দিলে automatic staggered delay হবে */
       [data-aos-order="1"] {
         transition-delay: calc(var(--aos-delay-step) * 1) !important;
       }
@@ -65,9 +54,9 @@
       }
     </style>
   </head>
-  <body class="">
+  <body>
     <!-- NAVBAR -->
-    <nav class="navbar border-2 border-red-600" data-aos="fade-down">
+    <nav class="navbar" data-aos="fade-down">
       <div class="nav-logo">
         <span class="got">got</span><span class="safe">safe</span>
         <span class="media">MEDIA</span>
@@ -81,9 +70,34 @@
       <div class="loading-text">Building your RISE brief…</div>
     </div>
 
+    <!-- BRIEF MODAL -->
+    <div id="brief-modal" class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-badge">📋 RISE Brief Summary</span>
+            <h2 class="modal-title" id="modal-headline">Your Brief</h2>
+          </div>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body">
+          <!-- filled by JS -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cta-main" onclick="sendEmailFromModal()">
+            📩 Send Brief to GotSafe
+          </button>
+          <button class="btn-cta-out" onclick="window.print()">
+            🖨 Print / Save PDF
+          </button>
+          <button class="btn-cta-out" onclick="closeModal()">✕ Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- MAIN -->
     <div class="main-wrap">
-      <!-- ===================== FORM SCREEN ===================== -->
+      <!-- FORM SCREEN -->
       <div id="form-screen">
         <!-- HERO -->
         <div class="hero">
@@ -157,6 +171,79 @@
                 </div>
               </div>
             </div>
+
+            <!-- CONTACT INFO FIELDS - Added at top of Research -->
+            <div
+              class="contact-info-block"
+              data-aos="fade-up"
+              data-aos-order="1"
+            >
+              <div class="contact-info-title">👤 Your Details</div>
+              <div class="contact-grid">
+                <div class="field-group">
+                  <label class="field-label">Full Name *</label>
+                  <input
+                    type="text"
+                    id="r-fullname"
+                    class="gs-input"
+                    placeholder="e.g. Amanda Chen"
+                    oninput="updateScore()"
+                  />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Email Address *</label>
+                  <input
+                    type="email"
+                    id="r-email"
+                    class="gs-input"
+                    placeholder="e.g. amanda@company.com.au"
+                    oninput="updateScore()"
+                  />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Phone / Contact</label>
+                  <input
+                    type="text"
+                    id="r-phone"
+                    class="gs-input"
+                    placeholder="e.g. +61 400 000 000"
+                    oninput="updateScore()"
+                  />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Company Name *</label>
+                  <input
+                    type="text"
+                    id="r-company"
+                    class="gs-input"
+                    placeholder="e.g. Goldfields Corp"
+                    oninput="updateScore()"
+                  />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Your Role / Title</label>
+                  <input
+                    type="text"
+                    id="r-role"
+                    class="gs-input"
+                    placeholder="e.g. Head of Safety & Wellbeing"
+                    oninput="updateScore()"
+                  />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Industry / Sector</label>
+                  <input
+                    type="text"
+                    id="r-industry"
+                    class="gs-input"
+                    placeholder="e.g. Mining, Construction, Oil & Gas"
+                    oninput="updateScore()"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
 
             <div class="insight" data-aos="fade-up" data-aos-order="2">
               <span class="tag">Made to Stick</span>
@@ -615,7 +702,6 @@
 
             <div class="divider" data-aos="fade-up" data-aos-order="8"></div>
 
-            <!-- Core message -->
             <div class="field-group" data-aos="fade-up" data-aos-order="9">
               <label class="field-label"
                 >What's the single most important message? (One sentence
@@ -625,12 +711,11 @@
                 type="text"
                 id="i-core-message"
                 class="gs-input"
-                placeholder='"e.g. "One decision changed everything. Here is what we learned."'
+                placeholder='"e.g. One decision changed everything. Here is what we learned."'
                 oninput="updateScore()"
               />
             </div>
 
-            <!-- Style chips -->
             <div class="field-group" data-aos="fade-up">
               <label class="field-label"
                 >What video style suits your message?</label
@@ -688,7 +773,6 @@
               </div>
             </div>
 
-            <!-- Style guide -->
             <div class="mini-label" data-aos="fade-up">🎬 Style Guide</div>
             <div class="style-grid">
               <div
@@ -753,7 +837,6 @@
               </div>
             </div>
 
-            <!-- Emotion -->
             <div class="field-group" data-aos="fade-up">
               <label class="field-label"
                 >What emotion do you want your audience to feel?</label
@@ -848,7 +931,6 @@
               surprising. Then fill it with the simplest possible truth.
             </div>
 
-            <!-- Story Arc -->
             <div class="mini-label" data-aos="fade-up" data-aos-order="3">
               🎬 Your Video Story Arc
             </div>
@@ -991,7 +1073,6 @@
               </div>
             </div>
 
-            <!-- ESG Transformer -->
             <div class="divider" data-aos="fade-up"></div>
             <div class="mini-label" data-aos="fade-up">
               🌿 ESG & Report Transformer
@@ -1272,7 +1353,6 @@
               </div>
             </div>
 
-            <!-- Amplifiers -->
             <div class="mini-label" data-aos="fade-up" data-aos-order="5">
               🚀 Engagement Amplifiers
             </div>
@@ -1334,17 +1414,6 @@
             <div class="divider" data-aos="fade-up"></div>
 
             <div class="field-group" data-aos="fade-up" data-aos-order="6">
-              <label class="field-label">Your name & company</label>
-              <input
-                type="text"
-                id="e-name"
-                class="gs-input"
-                placeholder="e.g. Amanda Chen — Head of Safety, Goldfields Corp"
-                oninput="updateScore()"
-              />
-            </div>
-
-            <div class="field-group" data-aos="fade-up" data-aos-order="7">
               <label class="field-label"
                 >Timeline & budget range (optional)</label
               >
@@ -1380,7 +1449,7 @@
               </div>
             </div>
 
-            <div class="field-group" data-aos="fade-up" data-aos-order="8">
+            <div class="field-group" data-aos="fade-up" data-aos-order="7">
               <label class="field-label">Anything else we need to know?</label>
               <textarea
                 id="e-notes"
@@ -1402,7 +1471,7 @@
       </div>
       <!-- /form-screen -->
 
-      <!-- ===================== OUTPUT SCREEN ===================== -->
+      <!-- OUTPUT SCREEN -->
       <div id="output-screen">
         <div class="score-hero" data-aos="zoom-in">
           <div class="score-number" id="final-score">0%</div>
@@ -1438,24 +1507,12 @@
           </div>
         </div>
       </div>
-      <!-- /output-screen -->
     </div>
 
-    <script src="/app.js"></script>
-
-    <!-- AOS JS + Global Init -->
+    <script src="app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script>
-      /* ============================================================
-         GLOBAL AOS INIT — সব timing এখানে control করুন।
-         duration, easing, offset — একবার বদলালেই সব জায়গায় লাগবে।
-         data-aos-order="1..9" দিলে CSS variable দিয়ে stagger হয়।
-         ============================================================ */
-      AOS.init({
-        once: false /* প্রতিটি element শুধু একবার animate হবে */,
-        duration: 300 /* default duration (ms) — :root --aos-duration এর সাথে মিলিয়ে রাখুন */,
-        easing: "ease-out-quart" /* global easing */,
-      });
+      AOS.init({ once: false, duration: 300, easing: "ease-out-quart" });
     </script>
   </body>
 </html>
