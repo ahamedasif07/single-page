@@ -558,7 +558,7 @@ Built with the RISE Video Brief Builder — GotSafe Media
   `.trim(),
   );
 
-  window.location.href = `mailto:aa@gotsafemedia.com.au?subject=${subject}&body=${body}`;
+  window.location.href = `mailto:rxasif31@gmail.com?subject=${subject}&body=${body}`;
 }
 
 // ─── RENDER OUTPUT (page below) ──────────────────────────
