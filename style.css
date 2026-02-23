@@ -975,8 +975,8 @@ body::after {
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    ellipse at 50% 0%,
-    rgba(115, 163, 109, 0.06) 0%,
+    at 50% 0%,
+    rgb(115 163 109 / 0%) 0%,
     transparent 60%
   );
 }

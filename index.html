@@ -11,10 +11,63 @@
     />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/style.css" />
+
+    <!-- AOS — Animate On Scroll -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
+    />
+
+    <style>
+      /* ============================================================
+         GLOBAL AOS CONFIG — এখানে সব কিছু control করুন
+         duration, delay-step, easing একবার বদলালে সব জায়গায় লাগবে
+         ============================================================ */
+      :root {
+        --aos-duration: 650ms;
+        --aos-delay-step: 80ms; /* stagger: প্রতিটি item-এর মধ্যে gap */
+        --aos-easing: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      /* সব AOS element-এ global duration ও easing apply */
+      [data-aos] {
+        transition-duration: var(--aos-duration) !important;
+        transition-timing-function: var(--aos-easing) !important;
+      }
+
+      /* data-aos-order="1..9" দিলে automatic staggered delay হবে */
+      [data-aos-order="1"] {
+        transition-delay: calc(var(--aos-delay-step) * 1) !important;
+      }
+      [data-aos-order="2"] {
+        transition-delay: calc(var(--aos-delay-step) * 2) !important;
+      }
+      [data-aos-order="3"] {
+        transition-delay: calc(var(--aos-delay-step) * 3) !important;
+      }
+      [data-aos-order="4"] {
+        transition-delay: calc(var(--aos-delay-step) * 4) !important;
+      }
+      [data-aos-order="5"] {
+        transition-delay: calc(var(--aos-delay-step) * 5) !important;
+      }
+      [data-aos-order="6"] {
+        transition-delay: calc(var(--aos-delay-step) * 6) !important;
+      }
+      [data-aos-order="7"] {
+        transition-delay: calc(var(--aos-delay-step) * 7) !important;
+      }
+      [data-aos-order="8"] {
+        transition-delay: calc(var(--aos-delay-step) * 8) !important;
+      }
+      [data-aos-order="9"] {
+        transition-delay: calc(var(--aos-delay-step) * 9) !important;
+      }
+    </style>
   </head>
   <body class="">
     <!-- NAVBAR -->
-    <nav class="navbar border-2 border-red-600">
+    <nav class="navbar border-2 border-red-600" data-aos="fade-down">
       <div class="nav-logo">
         <span class="got">got</span><span class="safe">safe</span>
         <span class="media">MEDIA</span>
@@ -34,16 +87,20 @@
       <div id="form-screen">
         <!-- HERO -->
         <div class="hero">
-          <div class="hero-badge">RISE Video Brief Builder</div>
-          <h1>Build a brief your people<br />will <em>actually</em> watch</h1>
-          <p>
+          <div class="hero-badge" data-aos="fade-down">
+            RISE Video Brief Builder
+          </div>
+          <h1 data-aos="fade-up" data-aos-order="1">
+            Build a brief your people<br />will <em>actually</em> watch
+          </h1>
+          <p data-aos="fade-up" data-aos-order="2">
             12 questions. One powerful brief. Built on the RISE framework and
             Made to Stick principles — so your message lands, not just plays.
           </p>
         </div>
 
         <!-- PROGRESS -->
-        <div class="progress-wrap">
+        <div class="progress-wrap" data-aos="fade-up" data-aos-order="3">
           <div class="progress-track">
             <div class="prog-seg prog-R" id="prog-R"></div>
             <div class="prog-seg prog-I" id="prog-I"></div>
@@ -54,7 +111,7 @@
         </div>
 
         <!-- STEP NAV -->
-        <div class="step-nav">
+        <div class="step-nav" data-aos="fade-up" data-aos-order="4">
           <button
             class="step-btn px-2 md:py-[50px] py-[40px]"
             id="btn-R"
@@ -63,17 +120,14 @@
             <span class="step-icon text-[22px]">🔍</span>
             <span class="step-label">Research</span>
           </button>
-
           <button class="step-btn" id="btn-I" onclick="goTo('I')">
             <span class="step-icon text-[22px]">💡</span>
             <span class="step-label">Imagine</span>
           </button>
-
           <button class="step-btn" id="btn-S" onclick="goTo('S')">
             <span class="step-icon text-[22px]">📐</span>
             <span class="step-label">Shape</span>
           </button>
-
           <button class="step-btn" id="btn-E" onclick="goTo('E')">
             <span class="step-icon text-[22px]">📣</span>
             <span class="step-label">Engage</span>
@@ -81,7 +135,7 @@
         </div>
 
         <!-- STICKINESS BAR -->
-        <div class="sticky-bar">
+        <div class="sticky-bar" data-aos="fade-up" data-aos-order="5">
           <span class="sticky-label">Stickiness</span>
           <div class="sticky-track">
             <div class="sticky-fill" id="sticky-fill"></div>
@@ -91,8 +145,8 @@
 
         <!-- =========== STEP R =========== -->
         <div class="step-screen active" id="screen-R">
-          <div class="card">
-            <div class="card-header">
+          <div class="card" data-aos="fade-up">
+            <div class="card-header" data-aos="fade-right" data-aos-order="1">
               <div class="card-icon icon-R"><span>🔍</span></div>
               <div>
                 <div class="card-title">Research — Know Your World</div>
@@ -104,7 +158,7 @@
               </div>
             </div>
 
-            <div class="insight">
+            <div class="insight" data-aos="fade-up" data-aos-order="2">
               <span class="tag">Made to Stick</span>
               Sticky ideas are <strong>Concrete</strong> — they use specific,
               real-world details people recognise. Vague messages get ignored.
@@ -112,7 +166,7 @@
             </div>
 
             <!-- Video Type -->
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="3">
               <label class="field-label"
                 >What type of video are you creating?</label
               >
@@ -184,7 +238,7 @@
             </div>
 
             <!-- Audience -->
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="4">
               <label class="field-label">Who is your primary audience?</label>
               <div class="chips" id="chips-audience">
                 <div
@@ -247,7 +301,7 @@
             </div>
 
             <!-- Core Problem -->
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="5">
               <label class="field-label"
                 >What's the core problem this video must solve?</label
               >
@@ -261,7 +315,7 @@
             </div>
 
             <!-- What's been tried -->
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="6">
               <label class="field-label"
                 >What has already been tried — and why didn't it work?</label
               >
@@ -275,7 +329,7 @@
             </div>
 
             <!-- Barriers -->
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="7">
               <label class="field-label"
                 >Are there language, literacy or cultural barriers in your
                 workforce?</label
@@ -319,15 +373,17 @@
               </div>
             </div>
 
-            <div class="divider"></div>
+            <div class="divider" data-aos="fade-up" data-aos-order="8"></div>
 
             <!-- Examples -->
-            <div class="mini-label">
+            <div class="mini-label" data-aos="fade-up" data-aos-order="9">
               💡 Real examples — click to inspire your brief
             </div>
             <div class="ex-grid">
               <div
                 class="ex-card"
+                data-aos="zoom-in"
+                data-aos-order="1"
                 onclick="
                   useExample(
                     this,
@@ -345,6 +401,8 @@
               </div>
               <div
                 class="ex-card"
+                data-aos="zoom-in"
+                data-aos-order="2"
                 onclick="
                   useExample(
                     this,
@@ -362,6 +420,8 @@
               </div>
               <div
                 class="ex-card"
+                data-aos="zoom-in"
+                data-aos-order="3"
                 onclick="
                   useExample(
                     this,
@@ -379,6 +439,8 @@
               </div>
               <div
                 class="ex-card"
+                data-aos="zoom-in"
+                data-aos-order="4"
                 onclick="
                   useExample(
                     this,
@@ -396,6 +458,8 @@
               </div>
               <div
                 class="ex-card"
+                data-aos="zoom-in"
+                data-aos-order="5"
                 onclick="
                   useExample(
                     this,
@@ -413,6 +477,8 @@
               </div>
               <div
                 class="ex-card"
+                data-aos="zoom-in"
+                data-aos-order="6"
                 onclick="
                   useExample(
                     this,
@@ -430,7 +496,7 @@
               </div>
             </div>
 
-            <div class="nav-btns">
+            <div class="nav-btns" data-aos="fade-up">
               <div></div>
               <button class="btn-primary" onclick="goTo('I')">
                 Next: Imagine <span>→</span>
@@ -441,8 +507,8 @@
 
         <!-- =========== STEP I =========== -->
         <div class="step-screen" id="screen-I">
-          <div class="card">
-            <div class="card-header">
+          <div class="card" data-aos="fade-up">
+            <div class="card-header" data-aos="fade-right" data-aos-order="1">
               <div class="card-icon icon-I"><span>💡</span></div>
               <div>
                 <div class="card-title">
@@ -456,7 +522,7 @@
               </div>
             </div>
 
-            <div class="insight">
+            <div class="insight" data-aos="fade-up" data-aos-order="2">
               <span class="tag">Made to Stick</span>
               The <strong>Curse of Knowledge</strong> kills most safety comms.
               You know too much — so you say too much. The antidote: strip your
@@ -464,7 +530,7 @@
             </div>
 
             <!-- Single Message Simplifier -->
-            <div class="simplifier">
+            <div class="simplifier" data-aos="fade-up" data-aos-order="3">
               <label class="field-label" style="margin-bottom: 12px"
                 >🎯 Single Message Simplifier</label
               >
@@ -493,8 +559,10 @@
             </div>
 
             <!-- Before/After -->
-            <div class="mini-label">⚡ Before & After — Safety Alert</div>
-            <div class="ba-grid">
+            <div class="mini-label" data-aos="fade-up" data-aos-order="4">
+              ⚡ Before & After — Safety Alert
+            </div>
+            <div class="ba-grid" data-aos="fade-up" data-aos-order="5">
               <div class="ba-box ba-before">
                 <span class="ba-label">❌ Before</span>
                 <p class="ba-text">
@@ -514,10 +582,20 @@
               </div>
             </div>
 
-            <div class="mini-label" style="margin-top: 24px">
+            <div
+              class="mini-label"
+              style="margin-top: 24px"
+              data-aos="fade-up"
+              data-aos-order="6"
+            >
               🌿 Before & After — ESG Report
             </div>
-            <div class="ba-grid" style="margin-bottom: 28px">
+            <div
+              class="ba-grid"
+              style="margin-bottom: 28px"
+              data-aos="fade-up"
+              data-aos-order="7"
+            >
               <div class="ba-box ba-before">
                 <span class="ba-label">❌ Before</span>
                 <p class="ba-text">
@@ -535,10 +613,10 @@
               </div>
             </div>
 
-            <div class="divider"></div>
+            <div class="divider" data-aos="fade-up" data-aos-order="8"></div>
 
             <!-- Core message -->
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="9">
               <label class="field-label"
                 >What's the single most important message? (One sentence
                 only)</label
@@ -547,13 +625,13 @@
                 type="text"
                 id="i-core-message"
                 class="gs-input"
-                placeholder='e.g. "One decision changed everything. Here is what we learned."'
+                placeholder='"e.g. "One decision changed everything. Here is what we learned."'
                 oninput="updateScore()"
               />
             </div>
 
-            <!-- Style -->
-            <div class="field-group">
+            <!-- Style chips -->
+            <div class="field-group" data-aos="fade-up">
               <label class="field-label"
                 >What video style suits your message?</label
               >
@@ -611,15 +689,22 @@
             </div>
 
             <!-- Style guide -->
-            <div class="mini-label">🎬 Style Guide</div>
+            <div class="mini-label" data-aos="fade-up">🎬 Style Guide</div>
             <div class="style-grid">
-              <div class="s-opt" onclick="setStyleOpt(this, 'AI Cinematic')">
+              <div
+                class="s-opt"
+                data-aos="flip-left"
+                data-aos-order="1"
+                onclick="setStyleOpt(this, 'AI Cinematic')"
+              >
                 <div class="s-opt-icon">🎥</div>
                 <div class="s-opt-title">AI Cinematic</div>
                 <div class="s-opt-sub">Leadership. Tenders.</div>
               </div>
               <div
                 class="s-opt"
+                data-aos="flip-left"
+                data-aos-order="2"
                 onclick="setStyleOpt(this, '2D / 2.5D Animation')"
               >
                 <div class="s-opt-icon">✏️</div>
@@ -628,6 +713,8 @@
               </div>
               <div
                 class="s-opt"
+                data-aos="flip-left"
+                data-aos-order="3"
                 onclick="setStyleOpt(this, '3D / 360° Immersive')"
               >
                 <div class="s-opt-icon">🌐</div>
@@ -636,6 +723,8 @@
               </div>
               <div
                 class="s-opt"
+                data-aos="flip-left"
+                data-aos-order="4"
                 onclick="setStyleOpt(this, 'Data Visualisation Story')"
               >
                 <div class="s-opt-icon">📈</div>
@@ -644,13 +733,20 @@
               </div>
               <div
                 class="s-opt"
+                data-aos="flip-left"
+                data-aos-order="5"
                 onclick="setStyleOpt(this, 'Corporate / Live Footage')"
               >
                 <div class="s-opt-icon">🎙️</div>
                 <div class="s-opt-title">Corporate Live</div>
                 <div class="s-opt-sub">Leaders. Culture.</div>
               </div>
-              <div class="s-opt" onclick="setStyleOpt(this, 'Mixed / Hybrid')">
+              <div
+                class="s-opt"
+                data-aos="flip-left"
+                data-aos-order="6"
+                onclick="setStyleOpt(this, 'Mixed / Hybrid')"
+              >
                 <div class="s-opt-icon">⚡</div>
                 <div class="s-opt-title">Hybrid</div>
                 <div class="s-opt-sub">Multi-format.</div>
@@ -658,7 +754,7 @@
             </div>
 
             <!-- Emotion -->
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up">
               <label class="field-label"
                 >What emotion do you want your audience to feel?</label
               >
@@ -722,7 +818,7 @@
               </div>
             </div>
 
-            <div class="nav-btns">
+            <div class="nav-btns" data-aos="fade-up">
               <button class="btn-outline" onclick="goTo('R')">← Back</button>
               <button class="btn-primary" onclick="goTo('S')">
                 Next: Shape →
@@ -733,8 +829,8 @@
 
         <!-- =========== STEP S =========== -->
         <div class="step-screen" id="screen-S">
-          <div class="card">
-            <div class="card-header">
+          <div class="card" data-aos="fade-up">
+            <div class="card-header" data-aos="fade-right" data-aos-order="1">
               <div class="card-icon icon-S"><span>📐</span></div>
               <div>
                 <div class="card-title">Shape — Structure Makes It Stick</div>
@@ -746,16 +842,18 @@
               </div>
             </div>
 
-            <div class="insight">
+            <div class="insight" data-aos="fade-up" data-aos-order="2">
               <span class="tag">Made to Stick</span>
               <strong>Unexpected + Simple.</strong> Open with a gap — something
               surprising. Then fill it with the simplest possible truth.
             </div>
 
             <!-- Story Arc -->
-            <div class="mini-label">🎬 Your Video Story Arc</div>
+            <div class="mini-label" data-aos="fade-up" data-aos-order="3">
+              🎬 Your Video Story Arc
+            </div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="4">
               <label class="field-label"
                 >The Hook — Unexpected opening (first 5 seconds)</label
               >
@@ -768,7 +866,7 @@
               />
             </div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="5">
               <label class="field-label"
                 >The Human Moment — Who is this really about?</label
               >
@@ -781,7 +879,7 @@
               />
             </div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="6">
               <label class="field-label"
                 >The One Action — What do you want them to do after
                 watching?</label
@@ -795,9 +893,9 @@
               />
             </div>
 
-            <div class="divider"></div>
+            <div class="divider" data-aos="fade-up" data-aos-order="7"></div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="8">
               <label class="field-label">Ideal video length</label>
               <div class="chips">
                 <div
@@ -831,7 +929,7 @@
               </div>
             </div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="9">
               <label class="field-label">Where will this video be seen?</label>
               <div class="chips">
                 <div
@@ -894,9 +992,12 @@
             </div>
 
             <!-- ESG Transformer -->
-            <div class="divider"></div>
-            <div class="mini-label">🌿 ESG & Report Transformer</div>
+            <div class="divider" data-aos="fade-up"></div>
+            <div class="mini-label" data-aos="fade-up">
+              🌿 ESG & Report Transformer
+            </div>
             <div
+              data-aos="fade-up"
               style="
                 background: rgba(58, 158, 136, 0.03);
                 border: 1px solid rgba(58, 158, 136, 0.1);
@@ -919,6 +1020,8 @@
               <div class="esg-grid">
                 <div
                   class="s-opt"
+                  data-aos="zoom-in"
+                  data-aos-order="1"
                   onclick="
                     setEsgOpt(
                       this,
@@ -932,6 +1035,8 @@
                 </div>
                 <div
                   class="s-opt"
+                  data-aos="zoom-in"
+                  data-aos-order="2"
                   onclick="
                     setEsgOpt(
                       this,
@@ -945,6 +1050,8 @@
                 </div>
                 <div
                   class="s-opt"
+                  data-aos="zoom-in"
+                  data-aos-order="3"
                   onclick="
                     setEsgOpt(
                       this,
@@ -958,6 +1065,8 @@
                 </div>
                 <div
                   class="s-opt"
+                  data-aos="zoom-in"
+                  data-aos-order="4"
                   onclick="
                     setEsgOpt(
                       this,
@@ -971,6 +1080,8 @@
                 </div>
                 <div
                   class="s-opt"
+                  data-aos="zoom-in"
+                  data-aos-order="5"
                   onclick="
                     setEsgOpt(
                       this,
@@ -984,6 +1095,8 @@
                 </div>
                 <div
                   class="s-opt"
+                  data-aos="zoom-in"
+                  data-aos-order="6"
                   onclick="
                     setEsgOpt(
                       this,
@@ -1009,7 +1122,7 @@
               ></div>
             </div>
 
-            <div class="nav-btns">
+            <div class="nav-btns" data-aos="fade-up">
               <button class="btn-outline" onclick="goTo('I')">← Back</button>
               <button class="btn-primary" onclick="goTo('E')">
                 Next: Engage →
@@ -1020,8 +1133,8 @@
 
         <!-- =========== STEP E =========== -->
         <div class="step-screen" id="screen-E">
-          <div class="card">
-            <div class="card-header">
+          <div class="card" data-aos="fade-up">
+            <div class="card-header" data-aos="fade-right" data-aos-order="1">
               <div class="card-icon icon-E"><span>📣</span></div>
               <div>
                 <div class="card-title">Engage — Keep the Message Alive</div>
@@ -1032,14 +1145,14 @@
               </div>
             </div>
 
-            <div class="insight">
+            <div class="insight" data-aos="fade-up" data-aos-order="2">
               <span class="tag">Made to Stick</span>
               <strong>Stories</strong> are the delivery mechanism of sticky
               ideas. A crew that watches a real story rehearses the right
               behaviour before they ever face the situation.
             </div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="3">
               <label class="field-label">How will you measure success?</label>
               <div class="chips">
                 <div
@@ -1101,7 +1214,7 @@
               </div>
             </div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="4">
               <label class="field-label"
                 >How will you keep the conversation going after the
                 video?</label
@@ -1160,9 +1273,16 @@
             </div>
 
             <!-- Amplifiers -->
-            <div class="mini-label">🚀 Engagement Amplifiers</div>
+            <div class="mini-label" data-aos="fade-up" data-aos-order="5">
+              🚀 Engagement Amplifiers
+            </div>
             <div class="ex-grid" style="margin-bottom: 28px">
-              <div class="amp-card" onclick="toggleAmpCard(this)">
+              <div
+                class="amp-card"
+                data-aos="fade-up"
+                data-aos-order="1"
+                onclick="toggleAmpCard(this)"
+              >
                 <div class="ex-emoji">🏅</div>
                 <div class="ex-title">Recognition Loops</div>
                 <div class="ex-desc">
@@ -1170,7 +1290,12 @@
                   Name them. Film them. Safety heroes create safety culture.
                 </div>
               </div>
-              <div class="amp-card" onclick="toggleAmpCard(this)">
+              <div
+                class="amp-card"
+                data-aos="fade-up"
+                data-aos-order="2"
+                onclick="toggleAmpCard(this)"
+              >
                 <div class="ex-emoji">📲</div>
                 <div class="ex-title">Share-Before-Shift</div>
                 <div class="ex-desc">
@@ -1178,7 +1303,12 @@
                   the start of every shift. One message. Every morning.
                 </div>
               </div>
-              <div class="amp-card" onclick="toggleAmpCard(this)">
+              <div
+                class="amp-card"
+                data-aos="fade-up"
+                data-aos-order="3"
+                onclick="toggleAmpCard(this)"
+              >
                 <div class="ex-emoji">🌍</div>
                 <div class="ex-title">Multilingual Versions</div>
                 <div class="ex-desc">
@@ -1186,7 +1316,12 @@
                   message, every crew, every language. Inclusion is safety.
                 </div>
               </div>
-              <div class="amp-card" onclick="toggleAmpCard(this)">
+              <div
+                class="amp-card"
+                data-aos="fade-up"
+                data-aos-order="4"
+                onclick="toggleAmpCard(this)"
+              >
                 <div class="ex-emoji">📊</div>
                 <div class="ex-title">30-Day Impact Report</div>
                 <div class="ex-desc">
@@ -1196,9 +1331,9 @@
               </div>
             </div>
 
-            <div class="divider"></div>
+            <div class="divider" data-aos="fade-up"></div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="6">
               <label class="field-label">Your name & company</label>
               <input
                 type="text"
@@ -1209,7 +1344,7 @@
               />
             </div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="7">
               <label class="field-label"
                 >Timeline & budget range (optional)</label
               >
@@ -1245,7 +1380,7 @@
               </div>
             </div>
 
-            <div class="field-group">
+            <div class="field-group" data-aos="fade-up" data-aos-order="8">
               <label class="field-label">Anything else we need to know?</label>
               <textarea
                 id="e-notes"
@@ -1256,7 +1391,7 @@
               ></textarea>
             </div>
 
-            <div class="nav-btns">
+            <div class="nav-btns" data-aos="fade-up">
               <button class="btn-outline" onclick="goTo('S')">← Back</button>
               <button class="btn-lime" onclick="generateBrief()">
                 Generate My Brief →
@@ -1269,18 +1404,20 @@
 
       <!-- ===================== OUTPUT SCREEN ===================== -->
       <div id="output-screen">
-        <!-- Score Card -->
-        <div class="score-hero">
+        <div class="score-hero" data-aos="zoom-in">
           <div class="score-number" id="final-score">0%</div>
           <div class="score-label">Stickiness Score</div>
           <p class="score-insight" id="score-insight">—</p>
         </div>
 
-        <!-- Brief -->
-        <div class="brief-card" id="brief-output"></div>
+        <div
+          class="brief-card"
+          id="brief-output"
+          data-aos="fade-up"
+          data-aos-order="1"
+        ></div>
 
-        <!-- CTA -->
-        <div class="cta-card">
+        <div class="cta-card" data-aos="fade-up" data-aos-order="2">
           <h3>Ready to bring this to life?</h3>
           <p>
             Send us your brief and we'll come back with a creative concept,
@@ -1305,6 +1442,20 @@
     </div>
 
     <script src="/app.js"></script>
-    <!-- /main-wrap -->
+
+    <!-- AOS JS + Global Init -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+      /* ============================================================
+         GLOBAL AOS INIT — সব timing এখানে control করুন।
+         duration, easing, offset — একবার বদলালেই সব জায়গায় লাগবে।
+         data-aos-order="1..9" দিলে CSS variable দিয়ে stagger হয়।
+         ============================================================ */
+      AOS.init({
+        once: false /* প্রতিটি element শুধু একবার animate হবে */,
+        duration: 300 /* default duration (ms) — :root --aos-duration এর সাথে মিলিয়ে রাখুন */,
+        easing: "ease-out-quart" /* global easing */,
+      });
+    </script>
   </body>
 </html>
